@@ -1,8 +1,8 @@
 const apiConfig = {
-    baseUrl: "https://api.example.com", // Raiz da URL da API
+    baseUrl: "http://localhost:8080", // Raiz da URL da API
     requests: {
         fetchAvailableTimes: {
-            endpoint: "/available-times",
+            endpoint: "/horarios",
             method: "GET",
             body: null, // GET não utiliza corpo
         },

@@ -1,6 +1,6 @@
 apiConfig.requests = {
     fetchAvailableTimes: {
-        endpoint: "/available-times",
+        endpoint: "/horarios",
         method: "GET",
         body: null,
     },
@@ -40,12 +40,23 @@ async function makeApiRequest(requestName, params = {}) {
             });
         }
 
+        setToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJBUEkgZWl4byA2Iiwic3ViIjoidGVzdGUiLCJleHAiOjE3NDYzMTgzNTAsImlkIjoxfQ.iYzs74-rbg1PbA-C0RO51C21Tjw5806uT1k_rgE86YI");
+        // Recupera o token JWT
+        const token = getToken();
+        console.log("Token JWT enviado:", token); // Log para depuração
+
+        // Configura os cabeçalhos da requisição
+        const headers = {
+            "Content-Type": "application/json",
+        };
+        if (token) {
+            headers["Authorization"] = `Bearer ${token}`; // Adiciona o cabeçalho Authorization explicitamente
+        }
+
         // Realiza a requisição
         const response = await fetch(url, {
             method: req.method,
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: headers,
             body,
         });
 
@@ -53,6 +64,7 @@ async function makeApiRequest(requestName, params = {}) {
             throw new Error(`Erro na requisição "${requestName}": ${response.statusText}`);
         }
 
+        console.log("Resposta da API:", response); // Verifica a resposta da API
         return await response.json();
     } catch (error) {
         console.error(`Erro na comunicação com a API: ${error.message}`);
@@ -63,7 +75,19 @@ async function makeApiRequest(requestName, params = {}) {
 // Função para buscar horários disponíveis (usando a função genérica)
 async function fetchAvailableTimes(date) {
     try {
-        return await makeApiRequest("fetchAvailableTimes", { date });
+        const response = await makeApiRequest("fetchAvailableTimes", { date });
+
+        // Verifica se a resposta contém a propriedade "content"
+        if (response && response.content) {
+            const times = response.content.map((item) => ({
+                date: item.data, // Mapeia a propriedade "data" para "date"
+                time: item.horarioInicial, // Mapeia a propriedade "horarioInicial" para "time"
+            }));
+            console.log("Horários mapeados:", times); // Verifica os horários mapeados
+            return times;
+        }
+
+        return []; // Retorna um array vazio se "content" não estiver presente
     } catch (error) {
         if (error.message === "connection_error") {
             return { error: "connection_error" }; // Retorna um erro de conexão
@@ -85,6 +109,7 @@ async function getTimesByDate(date) {
         return { [date]: [] }; // Retorna um registro vazio para a data
     }
 
+    // Organiza os horários por data
     times.forEach(({ date, time }) => {
         if (!timesByDate[date]) {
             timesByDate[date] = [];
@@ -92,9 +117,28 @@ async function getTimesByDate(date) {
         timesByDate[date].push(time);
     });
 
+    console.log("Horários organizados por data:", timesByDate); // Verifica os horários organizados
     return timesByDate;
+}
+
+// Função para renderizar os horários disponíveis
+function renderAvailableTimes(date) {
+    const availableTimesContainer = document.getElementById("available-times"); // Substitua pelo ID correto
+    availableTimesContainer.innerHTML = ""; // Limpa os horários anteriores
+
+    if (timesByDate[date] && timesByDate[date].length > 0) {
+        timesByDate[date].forEach((time) => {
+            const timeButton = document.createElement("button");
+            timeButton.textContent = time;
+            timeButton.classList.add("time-button");
+            availableTimesContainer.appendChild(timeButton);
+        });
+    } else {
+        availableTimesContainer.textContent = "Nenhum horário disponível.";
+    }
 }
 
 // Torna as funções acessíveis globalmente
 window.fetchAvailableTimes = fetchAvailableTimes;
 window.getTimesByDate = getTimesByDate;
+window.renderAvailableTimes = renderAvailableTimes;

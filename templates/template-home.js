@@ -45,7 +45,7 @@ async function renderWeekDays(weekDays) {
         // Adiciona o número do dia
         const dayNumber = document.createElement("div");
         dayNumber.textContent = day.getDate();
-        dayNumber.dataset.date = day.toISOString().split("T")[0]; // Formato AAAA-MM-DD
+        dayNumber.dataset.date = day.toLocaleDateString("en-CA"); // Formato AAAA-MM-DD
         dayContainer.appendChild(dayNumber);
 
         // Adiciona a classe "active" ao dia atual
@@ -54,14 +54,20 @@ async function renderWeekDays(weekDays) {
             !document.querySelector(".day.active")
         ) {
             dayContainer.classList.add("active");
-            await updateTimesForDate(day.toISOString().split("T")[0]); // Atualiza os horários
+            const selectedDate = day.toLocaleDateString("en-CA"); // Formato AAAA-MM-DD
+            console.log("Data ativa ao navegar entre semanas:", selectedDate);
+            await updateTimesForDate(selectedDate); // Atualiza os horários
         }
 
         // Evento de clique para tornar o dia ativo
         dayContainer.addEventListener("click", async () => {
             document.querySelectorAll(".day").forEach((d) => d.classList.remove("active"));
             dayContainer.classList.add("active");
-            await updateTimesForDate(day.toISOString().split("T")[0]); // Atualiza os horários
+
+            const selectedDate = day.toLocaleDateString("en-CA"); // Formato AAAA-MM-DD
+            console.log("Data selecionada:", selectedDate);
+
+            await updateTimesForDate(selectedDate); // Atualiza os horários
             updateCurrentMonth(weekDays); // Atualiza o mês com base no dia selecionado
         });
 
@@ -74,14 +80,28 @@ async function renderWeekDays(weekDays) {
 
 // Função para atualizar os horários para uma data específica
 async function updateTimesForDate(date) {
+    console.log("Data recebida em updateTimesForDate:", date);
+
     if (!timesByDate[date]) {
-        timesByDate = await getTimesByDate(date); // Busca os horários da API
+        const newTimes = await getTimesByDate(date); // Busca os horários da API
+        timesByDate = { ...timesByDate, ...newTimes }; // Mescla os novos horários com os existentes
     }
+
+    console.log("timesByDate após atualização:", timesByDate);
     renderAvailableTimes(date);
 }
 
 // Função para renderizar os horários disponíveis
 function renderAvailableTimes(date) {
+    const availableTimesContainer = document.getElementById("available-times");
+    if (!availableTimesContainer) {
+        console.error("Elemento com ID 'available-times' não encontrado.");
+        return;
+    }
+
+    console.log("Renderizando horários para a data:", date);
+    console.log("Horários disponíveis em renderAvailableTimes:", timesByDate[date]);
+
     availableTimesContainer.innerHTML = ""; // Limpa os horários anteriores
 
     if (timesByDate[date] && timesByDate[date].length > 0) {
@@ -104,11 +124,12 @@ function updateCurrentMonth(weekDays) {
     if (selectedDay) {
         // Se houver um dia selecionado, usa o mês desse dia
         const selectedDate = new Date(selectedDay.querySelector("div").dataset.date); // Usa o formato AAAA-MM-DD
+        console.log("selectedDate: "+selectedDate);
         //console.log(selectedDate);
         let recentlySelectedDay = new Date(selectedDate);
-        recentlySelectedDay.setDate(selectedDate.getDate() + 1); // Adiciona um dia para o próximo mês
+        recentlySelectedDay.setDate(selectedDate.getDate()); // Adiciona um dia para o próximo mês
         //console.log(recentlySelectedDay);
-        let newMonth = recentlySelectedDay.getMonth();
+        let newMonth = selectedDate.getMonth();
         currentMonthElement.textContent = monthNames[newMonth];
     } else {
         // Caso contrário, usa a regra de predominância
@@ -140,6 +161,31 @@ nextWeekButton.addEventListener("click", async () => {
     const weekDays = getWeekDays(currentDate);
     await renderWeekDays(weekDays);
 });
+
+// Função para buscar horários disponíveis por data
+async function getTimesByDate(date) {
+    const times = await fetchAvailableTimes(date);
+    const timesByDate = {};
+
+    if (times.error === "connection_error") {
+        return { error: "connection_error" }; // Propaga o erro de conexão
+    }
+
+    if (times.length === 0) {
+        return { [date]: [] }; // Retorna um registro vazio para a data
+    }
+
+    // Organiza os horários por data
+    times.forEach(({ date, time }) => {
+        if (!timesByDate[date]) {
+            timesByDate[date] = [];
+        }
+        timesByDate[date].push(time);
+    });
+
+    console.log("Horários organizados por data em getTimesByDate:", timesByDate);
+    return timesByDate;
+}
 
 // Inicializa o calendário com a semana atual
 (async () => {
