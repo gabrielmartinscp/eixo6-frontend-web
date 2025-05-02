@@ -39,7 +39,7 @@ async function renderWeekDays(weekDays) {
 
         // Adiciona a legenda do dia da semana
         const dayLabel = document.createElement("span");
-        dayLabel.textContent = weekDayAbbreviations[day.getDay()];
+        dayLabel.textContent = weekDayAbbreviations[(day.getDay() + 6) % 7]; // Ajusta para começar na segunda-feira
         dayContainer.appendChild(dayLabel);
 
         // Adiciona o número do dia
