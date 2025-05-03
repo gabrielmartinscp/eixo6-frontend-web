@@ -1,7 +1,18 @@
+/* Variáveis de cores */
+:root {
+  --primary: #800080;
+  --primary-hover: #a300b0;
+  --border: #800080;
+  --input-border: #ccc;
+  --background: #fff;
+  --text: #800080;
+  --button-text: #fff;
+}
+
 body {
   margin: 0;
   font-family: 'Arial', sans-serif;
-  background: #fff;
+  background: var(--background);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -10,20 +21,21 @@ body {
 
 .container {
   text-align: center;
-  border: 1px solid #b600c4;
-  border-radius: 16px;
+  border: 3px solid var(--border);
+  border-radius: 30px;
   padding: 32px;
   max-width: 400px;
   width: 90%;
 }
 
 h1 {
-  color: #b600c4;
+  color: var(--primary);
   margin-bottom: 10px;
+  font-family: 'Cormorant', serif;
 }
 
 h2 {
-  color: #b600c4;
+  color: var(--primary);
   margin: 20px 0;
   font-weight: 500;
 }
@@ -40,12 +52,12 @@ h2 {
   font-size: 14px;
   padding: 10px 20px;
   cursor: pointer;
-  color: #b600c4;
+  color: var(--primary);
   border-bottom: 2px solid transparent;
 }
 
 .tabs .active {
-  border-color: #b600c4;
+  border-color: var(--primary);
   font-weight: bold;
 }
 
@@ -57,22 +69,24 @@ form {
 
 input {
   padding: 12px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--input-border);
   border-radius: 8px;
 }
 
 button[type="submit"] {
-  background: #b600c4;
-  color: #fff;
+  background: var(--primary);
+  color: var(--button-text);
   border: none;
   padding: 12px;
   border-radius: 8px;
   cursor: pointer;
+  font-family: 'Cormorant', serif;
+  font-weight: bold;
   font-size: 16px;
 }
 
 button[type="submit"]:hover {
-  background: #a300b0;
+  background: var(--primary-hover);
 }
 
 .link {
@@ -81,7 +95,7 @@ button[type="submit"]:hover {
 }
 
 .link a {
-  color: #b600c4;
+  color: var(--text);
   text-decoration: none;
 }
 

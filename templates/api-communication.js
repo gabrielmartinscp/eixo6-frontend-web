@@ -40,7 +40,7 @@ async function makeApiRequest(requestName, params = {}) {
             });
         }
 
-        setToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJBUEkgZWl4byA2Iiwic3ViIjoidGVzdGUiLCJleHAiOjE3NDYzMTgzNTAsImlkIjoxfQ.iYzs74-rbg1PbA-C0RO51C21Tjw5806uT1k_rgE86YI");
+        setToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJBUEkgZWl4byA2Iiwic3ViIjoidGVzdGUiLCJleHAiOjE3NDY0ODc0MzcsImlkIjoxfQ.a4eTOd5p-WVCNJlYV-tiodhcXxoSODnbHPdF9ZdjXxc");
         // Recupera o token JWT
         const token = getToken();
         console.log("Token JWT enviado:", token); // Log para depuração

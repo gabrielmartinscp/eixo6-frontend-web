@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>EasyBook</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="index.css">
 </head>
 <body>
 
@@ -12,13 +12,12 @@
     <h1>EasyBook</h1>
     <!-- Opções de Cadastro e Login	 -->
     <div class="tabs">
-      <button onclick="showScreen('cadastroCliente')" id="btnCliente" class="active">Cliente</button>
-      <button onclick="showScreen('cadastroServidor')" id="btnServidor">Servidor</button>
-      <button onclick="showScreen('login')" id="btnLogin">Login</button>
+      <button onclick="showScreen('login')" id="btnLogin" class="active">Login</button>
+      <button onclick="showScreen('cadastro')" id="btnCliente">Cadastro</button>
     </div>
     <!-- Cadastro Cliente  -->
-    <div id="cadastroCliente" class="screen active">
-      <h2>Cadastro de Cliente</h2>
+    <div id="cadastro" class="screen">
+      <h2>Cadastro</h2>
       <form>
         <input type="email" placeholder="Digite seu e-mail" required>
         <input type="text" placeholder="Digite seu nome completo" required>
@@ -29,19 +28,9 @@
       <p class="link">Já possui conta? <a href="#" onclick="showScreen('login')">Acesse aqui</a></p>
     </div>
     <!-- Cadastro Servidor -->
-    <div id="cadastroServidor" class="screen">
-      <h2>Cadastro de Servidor</h2>
-      <form>
-        <input type="email" placeholder="Digite seu e-mail" required>
-        <input type="text" placeholder="Digite seu nome completo" required>
-        <input type="password" placeholder="Digite sua senha" required>
-        <input type="password" placeholder="Confirme sua senha" required>
-        <button type="submit">Cadastrar-se</button>
-      </form>
-      <p class="link">Já possui conta? <a href="#" onclick="showScreen('login')">Acesse aqui</a></p>
-    </div>
+    
     <!-- Login -->
-    <div id="login" class="screen">
+    <div id="login" class="screen active">
       <h2>Entrar</h2>
       <form>
         <input type="email" placeholder="Digite seu e-mail" required>
@@ -58,8 +47,9 @@
       document.getElementById(screenId).classList.add('active');
 
       document.querySelectorAll('.tabs button').forEach(btn => btn.classList.remove('active'));
-      if(screenId === 'cadastroCliente') document.getElementById('btnCliente').classList.add('active');
-      else if(screenId === 'cadastroServidor') document.getElementById('btnServidor').classList.add('active');
+      if(screenId === 'cadastro') document.getElementById('btnCliente').classList.add('active');
+     // if(screenId === 'cadastroCliente') document.getElementById('btnCliente').classList.add('active');
+      //else if(screenId === 'cadastroServidor') document.getElementById('btnServidor').classList.add('active');
       else if(screenId === 'login') document.getElementById('btnLogin').classList.add('active');
     }
   </script>
