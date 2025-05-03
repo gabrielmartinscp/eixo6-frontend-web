@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link rel="stylesheet" href="template-home.css">
+</head>
+<body>
+    <div class="card">
+        <div class="header">
+            <h1>EasyBook</h1>
+            <div class="profile-link">
+                <a href="#">perfil</a>
+                <img src="profile.jpg" alt="Profile Picture"> <!-- Replace with actual image path -->
+            </div>
+        </div>
+        <div class="profile">
+            <img src="profile.jpg" alt="Profile Picture"> <!-- Replace with actual image path -->
+            <div class="profile-info">
+                <h2>Diogo Almeida</h2>
+                <p>"Nossa barbearia é o espaço ideal para quem busca estilo, cuidado e uma experiência única."</p>
+            </div>
+        </div>
+        <div class="content">
+            <h3 id="current-month"></h3> <!-- Elemento dinâmico para o mês -->
+            <div class="calendar">
+                <div class="calendar-navigation">
+                    <button id="prev-week">&lt;</button>
+                    <div class="calendar-dates" id="calendar-dates">
+                        <!-- Dias da semana serão carregados dinamicamente -->
+                    </div>
+                    <button id="next-week">&gt;</button>
+                </div>
+            </div>
+            <h3>Horários disponíveis:</h3>
+            <div class="times" id="available-times">
+                <!-- Horários serão carregados dinamicamente -->
+            </div>
+        </div>
+        <div class="footer">
+            <p>Rua Teste, Nº 123, Belo Horizonte, MG | (21) 99090-1010</p>
+        </div>
+    </div>
+    <script src="auth.js"></script>
+    <script src="api-config.js"></script>
+    <script src="api-communication.js"></script>
+    <script src="template-home.js"></script>
+    </body>
+</html>
