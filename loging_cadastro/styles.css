@@ -1,0 +1,110 @@
+body {
+  margin: 0;
+  font-family: 'Arial', sans-serif;
+  background: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.container {
+  text-align: center;
+  border: 1px solid #b600c4;
+  border-radius: 16px;
+  padding: 32px;
+  max-width: 400px;
+  width: 90%;
+}
+
+h1 {
+  color: #b600c4;
+  margin-bottom: 10px;
+}
+
+h2 {
+  color: #b600c4;
+  margin: 20px 0;
+  font-weight: 500;
+}
+
+.tabs {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.tabs button {
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  padding: 10px 20px;
+  cursor: pointer;
+  color: #b600c4;
+  border-bottom: 2px solid transparent;
+}
+
+.tabs .active {
+  border-color: #b600c4;
+  font-weight: bold;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+input {
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+button[type="submit"] {
+  background: #b600c4;
+  color: #fff;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+button[type="submit"]:hover {
+  background: #a300b0;
+}
+
+.link {
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+.link a {
+  color: #b600c4;
+  text-decoration: none;
+}
+
+.link a:hover {
+  text-decoration: underline;
+}
+
+/* Responsividade */
+@media (max-width: 500px) {
+  .container {
+    padding: 20px;
+  }
+
+  input, button[type="submit"] {
+    font-size: 14px;
+  }
+}
+
+.screen {
+  display: none;
+}
+
+.screen.active {
+  display: block;
+}
+
