@@ -1,18 +1,16 @@
 // Funções para gerenciar o token JWT
 function setToken(token) {
-    localStorage.setItem("jwtToken", token); // Armazena o token no localStorage
+    localStorage.setItem("jwtToken", token);
 }
 
 function getToken() {
-    console.log(localStorage.getItem("jwtToken"));
-    return localStorage.getItem("jwtToken"); // Recupera o token do localStorage
+    return localStorage.getItem("jwtToken");
 }
 
 function removeToken() {
-    localStorage.removeItem("jwtToken"); // Remove o token do localStorage
+    localStorage.removeItem("jwtToken");
 }
 
-// Torna as funções acessíveis globalmente
 window.setToken = setToken;
 window.getToken = getToken;
 window.removeToken = removeToken;

@@ -39,7 +39,8 @@ let programmedSchedule = {
     'Sex': [],
     'Sáb': []
 };
-let specificDateSchedules = {}; // <-- Adicione esta linha para inicializar a variável
+// Armazena horários específicos por data: { [data]: [{id, horarioInicial}] }
+let specificDateSchedules = {};
 
 // --- Função utilitária para obter o id do usuário autenticado ---
 function getCurrentUserId() {
@@ -70,11 +71,6 @@ async function renderAppointments(dateStr) {
     const token = typeof getToken === 'function' ? getToken() : undefined;
     // Busca todos os horários do prestador para a data selecionada
     const appointments = await fetchPrestadorAppointments({ userId, dateStr, token });
-
-    // Filtra horários para exibir apenas os da data selecionada
-    // Se fetchPrestadorAppointments já retorna apenas os horários da data, não é necessário filtrar.
-    // Mas se retornar horários de várias datas, filtre assim:
-    // const filteredAppointments = appointments.filter(item => item.data === dateStr);
 
     if (!appointments || appointments.length === 0) {
         noAppointmentsMsg.textContent = `Nenhum horário agendado para ${dateStr.split('-').reverse().join('/')}.`;
@@ -124,7 +120,7 @@ function renderWeekDays() {
             }
             event.currentTarget.classList.add('day-selected');
             selectedDateStr = newlySelectedDateStr;
-            await renderAppointments(selectedDateStr); // Só renderiza horários da data selecionada
+            await renderAppointments(selectedDateStr);
         });
         dayElement.appendChild(numberElement);
         weekDaysContainer.appendChild(dayElement);
@@ -132,9 +128,10 @@ function renderWeekDays() {
 }
 
 // --- Funções para Edição Programada ---
-function createTimeSlotElement(dayKey, startTime = '', isSpecific = false) {
+function createTimeSlotElement(dayKey, startTime = '', isSpecific = false, horarioId = null) {
     const slotDiv = document.createElement('div');
     slotDiv.className = 'time-slot';
+    if (horarioId) slotDiv.dataset.horarioId = horarioId;
 
     const startInput = document.createElement('input');
     startInput.type = 'time';
@@ -148,15 +145,53 @@ function createTimeSlotElement(dayKey, startTime = '', isSpecific = false) {
     removeButton.className = 'action-button remove-button';
     removeButton.innerHTML = '&ndash;';
     removeButton.title = 'Remover horário';
-    removeButton.onclick = () => {
-        slotDiv.remove();
+    removeButton.onclick = async () => {
+        if (isSpecific && slotDiv.dataset.horarioId) {
+            const token = typeof getToken === 'function' ? getToken() : undefined;
+            try {
+                await deleteHorario({ id: slotDiv.dataset.horarioId, token });
+                slotDiv.remove();
+                specificDateSchedules[dayKey] = (specificDateSchedules[dayKey] || []).filter(
+                    s => String(s.id) !== String(slotDiv.dataset.horarioId)
+                );
+            } catch (e) {
+                alert("Erro ao excluir horário.");
+            }
+        } else {
+            slotDiv.remove();
+        }
     };
+
+    let saveButton = null;
+    if (isSpecific && horarioId) {
+        saveButton = document.createElement('button');
+        saveButton.type = 'button';
+        saveButton.className = 'action-button add-button ml-2';
+        saveButton.innerHTML = '💾';
+        saveButton.title = 'Salvar alteração';
+        saveButton.onclick = async () => {
+            const token = typeof getToken === 'function' ? getToken() : undefined;
+            try {
+                await updateHorario({
+                    id: horarioId,
+                    data: dayKey,
+                    horarioInicial: startInput.value,
+                    token
+                });
+                alert("Horário atualizado!");
+            } catch (e) {
+                alert("Erro ao atualizar horário.");
+            }
+        };
+    }
 
     slotDiv.appendChild(startInput);
     slotDiv.appendChild(removeButton);
+    if (saveButton) slotDiv.appendChild(saveButton);
 
     return slotDiv;
 }
+
 function renderProgrammedEditor() {
     weeklyScheduleEditor.innerHTML = '';
     dayAbbreviations.forEach(dayKey => {
@@ -191,6 +226,32 @@ function renderProgrammedEditor() {
 }
 
 // --- Funções para Edição Específica ---
+async function loadSpecificDaySchedules(dateStr) {
+    const userId = getCurrentUserId();
+    const token = typeof getToken === 'function' ? getToken() : undefined;
+    const horarios = await fetchPrestadorHorariosByDate({ userId, dateStr, token });
+    specificDateSchedules[dateStr] = horarios.map(item => ({
+        id: item.id,
+        horarioInicial: item.horarioInicial
+    }));
+}
+
+async function renderSpecificDayEditor(dateStr) {
+    await loadSpecificDaySchedules(dateStr);
+    specificDaySlotsContainer.innerHTML = '';
+    specificDayLabel.textContent = dateStr.split('-').reverse().join('/');
+    const slots = specificDateSchedules[dateStr] || [];
+    if (slots.length > 0) {
+        slots.forEach(slot => {
+            specificDaySlotsContainer.appendChild(
+                createTimeSlotElement(dateStr, slot.horarioInicial, true, slot.id)
+            );
+        });
+    }
+    specificDayEditorDiv.classList.remove('hidden-section');
+    specificDayPlaceholder.classList.add('hidden-section');
+}
+
 function renderSpecificCalendar() {
     calendarDaysGrid.innerHTML = '';
     const year = specificCalendarDate.getFullYear();
@@ -233,6 +294,7 @@ function renderSpecificCalendar() {
         calendarDaysGrid.appendChild(btn);
     }
 }
+
 function handleSpecificDayClick(event) {
     const selectedBtn = event.currentTarget;
     const dateStr = selectedBtn.dataset.date;
@@ -242,21 +304,59 @@ function handleSpecificDayClick(event) {
     }
     selectedBtn.classList.add('selected');
     specificSelectedDateStr = dateStr;
-    console.log('Data específica selecionada:', specificSelectedDateStr);
     renderSpecificDayEditor(specificSelectedDateStr);
 }
-function renderSpecificDayEditor(dateStr) {
-    specificDaySlotsContainer.innerHTML = '';
-    specificDayLabel.textContent = dateStr.split('-').reverse().join('/');
-    const existingSlots = specificDateSchedules[dateStr] || [];
-    if (existingSlots.length > 0) {
-        existingSlots.forEach(startTime => {
-            specificDaySlotsContainer.appendChild(createTimeSlotElement(dateStr, startTime, true));
+
+// Adiciona novo horário (POST)
+addSpecificDaySlotButton.addEventListener('click', async () => {
+    if (!specificSelectedDateStr) return;
+    const userId = getCurrentUserId();
+    const token = typeof getToken === 'function' ? getToken() : undefined;
+    const horarioInicial = "09:00";
+    try {
+        const novoHorario = await createHorario({
+            data: specificSelectedDateStr,
+            idPrestador: userId,
+            horarioInicial,
+            token
         });
+        await renderSpecificDayEditor(specificSelectedDateStr);
+    } catch (e) {
+        alert("Erro ao criar horário.");
     }
-    specificDayEditorDiv.classList.remove('hidden-section');
-    specificDayPlaceholder.classList.add('hidden-section');
-}
+});
+
+// Salva todos os horários do dia (atualiza horários já existentes)
+saveSpecificDayButton.addEventListener('click', async () => {
+    if (!specificSelectedDateStr) {
+        alert("Por favor, selecione um dia no calendário primeiro.");
+        return;
+    }
+    const token = typeof getToken === 'function' ? getToken() : undefined;
+    const timeSlots = specificDaySlotsContainer.querySelectorAll('.time-slot');
+    let erro = false;
+    for (const slot of timeSlots) {
+        const startInput = slot.querySelector('input[data-type="start"]');
+        const horarioId = slot.dataset.horarioId;
+        if (horarioId) {
+            try {
+                await updateHorario({
+                    id: horarioId,
+                    data: specificSelectedDateStr,
+                    horarioInicial: startInput.value,
+                    token
+                });
+            } catch (e) {
+                erro = true;
+            }
+        }
+    }
+    if (!erro) {
+        alert(`Horários para ${specificSelectedDateStr.split('-').reverse().join('/')} salvos com sucesso!`);
+    } else {
+        alert("Erro ao salvar um ou mais horários.");
+    }
+});
 
 // --- Lógica de Navegação por Abas ---
 navTabs.forEach(tab => {
@@ -315,29 +415,6 @@ prevMonthButtonSpecific.addEventListener('click', () => {
 nextMonthButtonSpecific.addEventListener('click', () => {
     specificCalendarDate.setMonth(specificCalendarDate.getMonth() + 1);
     renderSpecificCalendar();
-});
-addSpecificDaySlotButton.addEventListener('click', () => {
-    if (!specificSelectedDateStr) return;
-    const newSlot = createTimeSlotElement(specificSelectedDateStr, '', true);
-    specificDaySlotsContainer.appendChild(newSlot);
-});
-saveSpecificDayButton.addEventListener('click', () => {
-    if (!specificSelectedDateStr) {
-        alert("Por favor, selecione um dia no calendário primeiro.");
-        return;
-    }
-    console.log(`Salvando horários para ${specificSelectedDateStr}...`);
-    const updatedDaySchedule = [];
-    const timeSlots = specificDaySlotsContainer.querySelectorAll('.time-slot');
-    timeSlots.forEach(slot => {
-        const startInput = slot.querySelector('input[data-type="start"]');
-        if (startInput && startInput.value) {
-            updatedDaySchedule.push(startInput.value);
-        }
-    });
-    specificDateSchedules[specificSelectedDateStr] = updatedDaySchedule;
-    console.log("Horários específicos atualizados:", specificDateSchedules);
-    alert(`Horários para ${specificSelectedDateStr.split('-').reverse().join('/')} salvos com sucesso! (Verifique o console)`);
 });
 
 // --- Inicialização ---

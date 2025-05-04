@@ -28,7 +28,7 @@ async function fetchPrestadorAppointments({ userId, dateStr, token }) {
         userId = 1;
         console.warn("Não foi possível recuperar o id do usuário autenticado. Usando id=1 para teste.");
     }
-    const url = getApiUrl('fetchPrestadorAppointments', { id: userId }) + (dateStr ? `?date=${encodeURIComponent(dateStr)}` : '');
+    const url = getApiUrl('fetchPrestadorAppointments', { id: userId });
     const headers = { "Content-Type": "application/json" };
     if (token) headers["Authorization"] = `Bearer ${token}`;
     try {
@@ -44,6 +44,30 @@ async function fetchPrestadorAppointments({ userId, dateStr, token }) {
                     .map(item => item.horarioInicial);
             }
             return data.content.map(item => item.horarioInicial);
+        }
+        return [];
+    } catch (err) {
+        console.error("Erro ao buscar horários do prestador:", err);
+        return [];
+    }
+}
+
+// Função para buscar horários específicos do prestador para uma data
+async function fetchPrestadorHorariosByDate({ userId, dateStr, token }) {
+    const url = getApiUrl('fetchPrestadorAppointments', { id: userId });
+    const headers = { "Content-Type": "application/json" };
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+    try {
+        const response = await fetch(url, { method: "GET", headers });
+        if (!response.ok) throw new Error("Erro ao buscar horários do prestador");
+        const data = await response.json();
+        // Retorna todos os objetos (com id, data, horarioInicial)
+        if (data && data.content) {
+            return data.content.map(item => ({
+                id: item.id,
+                data: item.data,
+                horarioInicial: item.horarioInicial
+            }));
         }
         return [];
     } catch (err) {
@@ -174,9 +198,62 @@ function renderAvailableTimes(date) {
     }
 }
 
+// Função para criar um novo horário (POST)
+async function createHorario({ data, idPrestador, horarioInicial, token }) {
+    const url = apiConfig.baseUrl + "/horarios";
+    const headers = { "Content-Type": "application/json" };
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+    const body = JSON.stringify({ data, idPrestador, horarioInicial });
+    try {
+        const response = await fetch(url, { method: "POST", headers, body });
+        if (!response.ok) throw new Error("Erro ao criar horário");
+        return await response.json();
+    } catch (err) {
+        console.error("Erro ao criar horário:", err);
+        throw err;
+    }
+}
+
+// Função para excluir um horário (DELETE)
+async function deleteHorario({ id, token }) {
+    const url = apiConfig.baseUrl + `/horarios/${id}`;
+    const headers = { "Content-Type": "application/json" };
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+    try {
+        const response = await fetch(url, { method: "DELETE", headers });
+        if (!response.ok) throw new Error("Erro ao excluir horário");
+        return true;
+    } catch (err) {
+        console.error("Erro ao excluir horário:", err);
+        throw err;
+    }
+}
+
+// Função para atualizar um horário (PUT)
+// Corrigido: endpoint é /horarios e o corpo deve conter { id, data, horarioInicial }
+async function updateHorario({ id, data, horarioInicial, token }) {
+    // Usa o endpoint centralizado do api-config.js
+    const url = apiConfig.baseUrl + apiConfig.requests.updateHorario.endpoint;
+    const headers = { "Content-Type": "application/json" };
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+    const body = JSON.stringify({ id, data, horarioInicial });
+    try {
+        const response = await fetch(url, { method: "PUT", headers, body });
+        if (!response.ok) throw new Error("Erro ao atualizar horário");
+        return await response.json();
+    } catch (err) {
+        console.error("Erro ao atualizar horário:", err);
+        throw err;
+    }
+}
+
 // Torna as funções acessíveis globalmente
 window.fetchAvailableTimes = fetchAvailableTimes;
 window.getTimesByDate = getTimesByDate;
 window.renderAvailableTimes = renderAvailableTimes;
 window.fetchPrestadorAppointments = fetchPrestadorAppointments;
 window.getApiUrl = getApiUrl;
+window.fetchPrestadorHorariosByDate = fetchPrestadorHorariosByDate;
+window.createHorario = createHorario;
+window.deleteHorario = deleteHorario;
+window.updateHorario = updateHorario;
