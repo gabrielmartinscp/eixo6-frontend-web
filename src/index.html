@@ -32,26 +32,62 @@
     <!-- Login -->
     <div id="login" class="screen active">
       <h2>Entrar</h2>
-      <form>
-        <input type="email" placeholder="Digite seu e-mail" required>
-        <input type="password" placeholder="Digite sua senha" required>
+      <form id="loginForm">
+        <input type="text" id="loginUsuario" placeholder="Usuário" required>
+        <input type="password" id="loginSenha" placeholder="Senha" required>
         <button type="submit">Fazer Login</button>
       </form>
-      <p class="link">Não tem uma conta? <a href="#" onclick="showScreen('cadastroCliente')">Cadastre-se!</a></p>
+      <p class="link">Não tem uma conta? <a href="#" onclick="showScreen('cadastro')">Cadastre-se!</a></p>
+      <p id="loginError" style="color: red; display: none; margin-top: 10px;">Usuário ou senha inválidos.</p>
     </div>
   </div>
-  <!-- Transição de Tela -->
+  <!-- Transição de Tela e Login -->
+  <script src="auth.js"></script>
   <script>
+    console.log('setToken:', typeof setToken);
     function showScreen(screenId) {
       document.querySelectorAll('.screen').forEach(div => div.classList.remove('active'));
       document.getElementById(screenId).classList.add('active');
 
       document.querySelectorAll('.tabs button').forEach(btn => btn.classList.remove('active'));
       if(screenId === 'cadastro') document.getElementById('btnCliente').classList.add('active');
-     // if(screenId === 'cadastroCliente') document.getElementById('btnCliente').classList.add('active');
-      //else if(screenId === 'cadastroServidor') document.getElementById('btnServidor').classList.add('active');
       else if(screenId === 'login') document.getElementById('btnLogin').classList.add('active');
     }
+
+    // Login seguro
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const usuario = document.getElementById('loginUsuario').value;
+      const senha = document.getElementById('loginSenha').value;
+      const loginError = document.getElementById('loginError');
+      loginError.style.display = 'none';
+
+      try {
+        const response = await fetch('http://localhost:8080/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ usuario, senha })
+        });
+
+        if (!response.ok) {
+          loginError.style.display = 'block';
+          return;
+        }
+
+        const data = await response.json();
+        console.log('Dados recebidos:', data);
+        if (data && data.token) {
+          console.log('Login bem-sucedido:', data.token);
+          setToken(data.token); // Função definida em auth.js
+          // Redirecionar ou atualizar a interface conforme necessário
+          window.location.href = "template-home.html";
+        } else {
+          loginError.style.display = 'block';
+        }
+      } catch (err) {
+        loginError.style.display = 'block';
+      }
+    });
   </script>
 
 </body>

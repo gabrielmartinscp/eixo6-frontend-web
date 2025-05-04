@@ -1,20 +1,56 @@
-apiConfig.requests = {
-    fetchAvailableTimes: {
-        endpoint: "/horarios",
-        method: "GET",
-        body: null,
-    },
-    fetchUserDetails: {
-        endpoint: "/user-details",
-        method: "POST",
-        body: { userId: null },
-    },
-    fetchAppointments: {
-        endpoint: "/appointments",
-        method: "GET",
-        body: null,
-    },
-};
+// Importa configuração da API
+// Supondo que api-config.js exporta um objeto apiConfig
+// Exemplo de api-config.js:
+// export const apiConfig = {
+//   baseUrl: "http://localhost:8080",
+//   endpoints: {
+//     horariosPrestador: "/horarios/prestador/{id}",
+//     // outros endpoints...
+//   }
+// };
+
+function getApiUrl(requestKey, params = {}) {
+    // Busca o request na estrutura correta
+    let request = apiConfig.requests[requestKey];
+    if (!request) {
+        throw new Error(`Request "${requestKey}" não encontrado em apiConfig.requests`);
+    }
+    let endpoint = request.endpoint;
+    Object.keys(params).forEach(key => {
+        endpoint = endpoint.replace(`{${key}}`, encodeURIComponent(params[key]));
+    });
+    return apiConfig.baseUrl + endpoint;
+}
+
+// Função para buscar horários do prestador
+async function fetchPrestadorAppointments({ userId, dateStr, token }) {
+    if (!userId) {
+        userId = 1;
+        console.warn("Não foi possível recuperar o id do usuário autenticado. Usando id=1 para teste.");
+    }
+    const url = getApiUrl('fetchPrestadorAppointments', { id: userId }) + (dateStr ? `?date=${encodeURIComponent(dateStr)}` : '');
+    const headers = { "Content-Type": "application/json" };
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+    try {
+        const response = await fetch(url, { method: "GET", headers });
+        if (!response.ok) throw new Error("Erro ao buscar horários do prestador");
+        const data = await response.json();
+        // Se vierem horários de várias datas, filtre aqui:
+        if (data && data.content) {
+            // Se cada item tem .data e .horarioInicial:
+            if (dateStr) {
+                return data.content
+                    .filter(item => item.data === dateStr)
+                    .map(item => item.horarioInicial);
+            }
+            return data.content.map(item => item.horarioInicial);
+        }
+        return [];
+    } catch (err) {
+        console.error("Erro ao buscar horários do prestador:", err);
+        return [];
+    }
+}
 
 // Função genérica para realizar requisições à API
 async function makeApiRequest(requestName, params = {}) {
@@ -40,7 +76,7 @@ async function makeApiRequest(requestName, params = {}) {
             });
         }
 
-        setToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJBUEkgZWl4byA2Iiwic3ViIjoidGVzdGUiLCJleHAiOjE3NDY0ODc0MzcsImlkIjoxfQ.a4eTOd5p-WVCNJlYV-tiodhcXxoSODnbHPdF9ZdjXxc");
+        //setToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJBUEkgZWl4byA2Iiwic3ViIjoidGVzdGUiLCJleHAiOjE3NTI0MTY2ODIsImlkIjoxfQ.5TJl4T4Jf1ImGnV6y0icIefAjqBCrqjjfdUDtNO_F30");
         // Recupera o token JWT
         const token = getToken();
         console.log("Token JWT enviado:", token); // Log para depuração
@@ -142,3 +178,5 @@ function renderAvailableTimes(date) {
 window.fetchAvailableTimes = fetchAvailableTimes;
 window.getTimesByDate = getTimesByDate;
 window.renderAvailableTimes = renderAvailableTimes;
+window.fetchPrestadorAppointments = fetchPrestadorAppointments;
+window.getApiUrl = getApiUrl;

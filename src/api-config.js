@@ -16,5 +16,11 @@ const apiConfig = {
             method: "GET",
             body: null,
         },
+        // Adicionado para template-servidor
+        fetchPrestadorAppointments: {
+            endpoint: "/horarios/prestador/{id}",
+            method: "GET",
+            body: null,
+        },
     },
 };

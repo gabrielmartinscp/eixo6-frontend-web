@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disponibilidade do Prestador</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="template-servidor.css">
+</head>
+<body class="p-4 md:p-8">
+
+    <nav class="max-w-4xl mx-auto mb-4 border-b border-gray-200">
+        <div class="flex justify-center space-x-4">
+            <button id="tab-view-agenda" data-target="view-agenda" class="nav-tab active">Visualizar Agenda</button>
+            <button id="tab-edit-programmed" data-target="edit-programmed" class="nav-tab">Edição Programada</button>
+            <button id="tab-edit-specific" data-target="edit-specific" class="nav-tab">Edição Específica</button>
+        </div>
+    </nav>
+
+    <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-6">
+        <div id="view-agenda" class="content-section">
+            <!-- ... conteúdo da agenda ... -->
+            <header class="flex flex-col md:flex-row items-center justify-between pb-4 border-b border-gray-200 mb-4">
+                <div class="flex items-center mb-4 md:mb-0">
+                    <img src="https://placehold.co/64x64/E2E8F0/4A5568?text=Logo" alt="Logo do Prestador" class="w-16 h-16 rounded-full mr-4">
+                    <div class="flex items-center">
+                        <h1 class="text-xl md:text-2xl font-semibold text-gray-800 mr-2">Nome do Prestador</h1>
+                        <button aria-label="Editar perfil" class="text-gray-500 hover:text-purple-600 icon-center ml-1 p-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="text-sm text-gray-600 text-center md:text-right">
+                    <p><strong>Endereço:</strong> Rua Exemplo, Nº 123</p>
+                    <p>Bairro Exemplo - Cidade/UF</p>
+                </div>
+            </header>
+            <section class="bg-purple-600 text-white p-4 rounded-lg mb-6 text-center md:text-left">
+                <p>Este é um espaço para a descrição do perfil do prestador de serviço. Pode incluir informações sobre a especialidade, experiência, ou qualquer outra informação relevante para os clientes.</p>
+            </section>
+            <section class="mb-6">
+                <h2 id="current-month-year" class="text-xl font-semibold text-center text-gray-800 mb-4">Maio 2025</h2>
+                <div class="flex items-center justify-center gap-x-4 md:gap-x-6">
+                    <button id="prev-week" aria-label="Semana anterior" class="nav-button flex-shrink-0">&lt;</button>
+                    <div id="week-days-container" class="flex justify-center space-x-1 md:space-x-2 overflow-hidden"></div>
+                    <button id="next-week" aria-label="Próxima semana" class="nav-button flex-shrink-0">&gt;</button>
+                </div>
+            </section>
+            <section class="border-t border-gray-200 pt-6">
+                <h3 class="text-lg font-semibold text-center text-gray-700 mb-4">Horários agendados:</h3>
+                <div id="appointments-container" class="flex flex-wrap justify-center gap-3">
+                    <p id="no-appointments-msg" class="text-gray-500 italic">Selecione um dia para ver os horários agendados.</p>
+                </div>
+            </section>
+        </div>
+        <div id="edit-programmed" class="content-section hidden-section">
+            <h2 class="text-xl font-semibold text-center text-gray-800 mb-6">Edição de Agenda Programada</h2>
+            <div class="flex flex-col md:flex-row md:items-center gap-4 mb-8">
+                <div class="flex items-center">
+                    <label for="start-date" class="form-label">Intervalo de datas:</label>
+                    <input type="date" id="start-date" name="start-date" class="form-input" value="2025-05-02">
+                    <span class="mx-2 text-gray-500">a</span>
+                    <input type="date" id="end-date" name="end-date" class="form-input" value="2026-05-02">
+                </div>
+            </div>
+            <div id="weekly-schedule-editor" class="space-y-4"></div>
+            <div class="mt-8 text-center">
+                <button id="save-programmed-schedule" class="save-button">Editar</button>
+            </div>
+        </div>
+        <div id="edit-specific" class="content-section hidden-section">
+            <h2 class="text-xl font-semibold text-center text-gray-800 mb-4">Edição de Data Específica</h2>
+            <div class="calendar-container mb-8">
+                <div class="calendar-header">
+                    <button id="prev-month-specific" aria-label="Mês anterior" class="nav-button">&lt;</button>
+                    <h3 id="current-month-year-specific" class="text-lg font-semibold text-gray-700">Maio 2025</h3>
+                    <button id="next-month-specific" aria-label="Próximo mês" class="nav-button">&gt;</button>
+                </div>
+                <div class="calendar-grid mb-4">
+                    <div class="calendar-day-header">Seg</div>
+                    <div class="calendar-day-header">Ter</div>
+                    <div class="calendar-day-header">Qua</div>
+                    <div class="calendar-day-header">Qui</div>
+                    <div class="calendar-day-header">Sex</div>
+                    <div class="calendar-day-header">Sáb</div>
+                    <div class="calendar-day-header">Dom</div>
+                </div>
+                <div id="calendar-days-grid" class="calendar-grid"></div>
+            </div>
+            <div id="specific-day-schedule-editor" class="specific-day-editor hidden-section">
+                <div class="flex items-center mb-4">
+                    <span id="specific-day-label" class="specific-day-label">DD/MM/YYYY</span>
+                    <div id="specific-day-slots-container" class="specific-day-time-slots"></div>
+                    <button id="add-specific-day-slot" type="button" class="action-button add-button ml-2" title="Adicionar horário">+</button>
+                </div>
+                <div class="mt-4 text-center">
+                    <button id="save-specific-day-schedule" class="save-button">Editar Horários do Dia</button>
+                </div>
+            </div>
+            <p id="specific-day-placeholder" class="text-center text-gray-500 italic">Selecione um dia no calendário para editar os horários.</p>
+        </div>
+    </div>
+    <script src="auth.js"></script>
+    <script src="api-config.js"></script>
+    <script src="api-communication.js"></script>
+    <script src="template-servidor.js"></script>
+</body>
+</html>
