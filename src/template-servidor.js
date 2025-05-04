@@ -59,7 +59,7 @@ function getCurrentUserId() {
             } catch (e) {}
         }
     }
-    return 1; // fallback para teste
+    //return 1; // fallback para teste
 }
 
 // --- Funções de Renderização (Visualizar Agenda) ---

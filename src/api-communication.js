@@ -28,7 +28,7 @@ async function fetchPrestadorAppointments({ userId, dateStr, token }) {
         userId = 1;
         console.warn("Não foi possível recuperar o id do usuário autenticado. Usando id=1 para teste.");
     }
-    const url = getApiUrl('fetchPrestadorAppointments', { id: userId });
+    const url = getApiUrl('fetchPrestadorAppointments', { id: userId }) + (dateStr ? `?date=${encodeURIComponent(dateStr)}` : '');
     const headers = { "Content-Type": "application/json" };
     if (token) headers["Authorization"] = `Bearer ${token}`;
     try {
@@ -54,7 +54,7 @@ async function fetchPrestadorAppointments({ userId, dateStr, token }) {
 
 // Função para buscar horários específicos do prestador para uma data
 async function fetchPrestadorHorariosByDate({ userId, dateStr, token }) {
-    const url = getApiUrl('fetchPrestadorAppointments', { id: userId });
+    const url = getApiUrl('fetchPrestadorAppointments', { id: userId }) + (dateStr ? `?date=${encodeURIComponent(dateStr)}` : '');
     const headers = { "Content-Type": "application/json" };
     if (token) headers["Authorization"] = `Bearer ${token}`;
     try {
@@ -63,11 +63,14 @@ async function fetchPrestadorHorariosByDate({ userId, dateStr, token }) {
         const data = await response.json();
         // Retorna todos os objetos (com id, data, horarioInicial)
         if (data && data.content) {
-            return data.content.map(item => ({
+            if (dateStr) {
+            return data.content.filter(item => item.data === dateStr).map(item => ({
                 id: item.id,
                 data: item.data,
                 horarioInicial: item.horarioInicial
             }));
+        }
+        return data.content.map(item => item.horarioInicial);
         }
         return [];
     } catch (err) {
