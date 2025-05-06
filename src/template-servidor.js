@@ -425,3 +425,50 @@ nextMonthButtonSpecific.addEventListener('click', () => {
     document.getElementById('edit-programmed').classList.add('hidden-section');
     document.getElementById('edit-specific').classList.add('hidden-section');
 })();
+
+
+// --- Navegação ---
+(function() {
+    let userId = null;
+    if (typeof getToken === 'function') {
+        const token = getToken();
+        if (token) {
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                if (payload && payload.id) userId = payload.id;
+            } catch (e) {}
+        }
+    }
+    if (userId) {
+        document.getElementById("profile-img").src = "http://localhost:8080/usuarios/" + userId + "/fotoPerfil";
+    }
+})();
+
+const profileLink = document.getElementById('profile-link');
+const dropdown = document.getElementById('profile-dropdown');
+let dropdownOpen = false;
+
+profileLink.addEventListener('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    dropdown.style.display = dropdownOpen ? 'none' : 'block';
+    dropdownOpen = !dropdownOpen;
+});
+
+document.addEventListener('click', function(e) {
+    if (dropdownOpen && !profileLink.contains(e.target)) {
+        dropdown.style.display = 'none';
+        dropdownOpen = false;
+    }
+});
+
+const dropdownBtns = dropdown.querySelectorAll('.dropdown-btn');
+dropdownBtns[0].onclick = function() { window.location.href = "template-home.html"; };
+dropdownBtns[1].onclick = function() { window.location.href = "template-servidor.html"; };
+dropdownBtns[2].onclick = function() { window.location.href = "atualizar-perfil.html"; };
+dropdownBtns[3].onclick = function() {
+    if (confirm("Deseja mesmo se desconectar?")) {
+        if (typeof removeToken === 'function') removeToken();
+        window.location.href = "index.html";
+    }
+};

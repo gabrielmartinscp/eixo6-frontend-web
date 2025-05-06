@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
-    <link rel="stylesheet" href="template-home.css">
+    <link rel="stylesheet" href="visualizar-perfil.css">
 </head>
 <body>
     <div class="card">
@@ -23,10 +23,10 @@
             </div>
         </div>
         <div class="profile">
-            <img src="http://localhost:8080/usuarios/2/fotoPerfil" alt="Profile Picture">
+            <img id="profile-img-queried-user" src="http://localhost:8080/usuarios/2/fotoPerfil" alt="Profile Picture">
             <div class="profile-info">
-                <h2>Diogo Almeida</h2>
-                <p>"Nossa barbearia é o espaço ideal para quem busca estilo, cuidado e uma experiência única."</p>
+                <h2 id="nome-usuario-perfil">Diogo Almeida</h2>
+                <p id="bio-usuario-perfil">"Nossa barbearia é o espaço ideal para quem busca estilo, cuidado e uma experiência única."</p>
             </div>
         </div>
         <div class="content">
@@ -46,9 +46,6 @@
     <script src="auth.js"></script>
     <script src="api-config.js"></script>
     <script src="api-communication.js"></script>
-    <script src="template-home.js"></script>
-    <script>
-        
-    </script>
+    <script src="visualizar-perfil.js"></script>
 </body>
 </html>

@@ -3,12 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Disponibilidade do Prestador</title>
+    <title>Home - profissional</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="template-servidor.css">
 </head>
 <body class="p-4 md:p-8">
+
+    <div class="header max-w-4xl">
+        <h1>EasyBook</h1>
+        <div class="profile-link" id="profile-link">
+            <a href="atualizar-perfil.html">perfil</a>
+            <img id="profile-img" src="" alt="Profile Picture">
+            <div id="profile-dropdown">
+                <button class="dropdown-btn">perfil comum</button>
+                <button class="dropdown-btn">perfil profissional</button>
+                <button class="dropdown-btn">editar perfil</button>
+                <button class="dropdown-btn sair">sair</button>
+            </div>
+        </div>
+    </div>
 
     <nav class="max-w-4xl mx-auto mb-4 border-b border-gray-200">
         <div class="flex justify-center space-x-4">
@@ -20,7 +34,6 @@
 
     <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-6">
         <div id="view-agenda" class="content-section">
-            <!-- ... conteúdo da agenda ... -->
             <header class="flex flex-col md:flex-row items-center justify-between pb-4 border-b border-gray-200 mb-4">
                 <div class="flex items-center mb-4 md:mb-0">
                     <img src="https://placehold.co/64x64/E2E8F0/4A5568?text=Logo" alt="Logo do Prestador" class="w-16 h-16 rounded-full mr-4">
@@ -32,8 +45,7 @@
                     </div>
                 </div>
                 <div class="text-sm text-gray-600 text-center md:text-right">
-                    <p><strong>Endereço:</strong> Rua Exemplo, Nº 123</p>
-                    <p>Bairro Exemplo - Cidade/UF</p>
+                    
                 </div>
             </header>
             <section id="bio" class="text-white p-4 rounded-lg mb-6 text-center md:text-left">

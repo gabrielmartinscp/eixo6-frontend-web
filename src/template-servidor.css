@@ -101,3 +101,71 @@ body { font-family: 'Inter', Arial, sans-serif; background-color: var(--gray-bg)
 #bio {
     background-color: var(--main-purple);
 }
+
+/* ...demais estilos... */
+.header {
+    background-color: var(--main-purple);
+    color: #fff;
+    padding: 16px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 0.75rem 0.75rem 0 0;
+    max-width: 64rem;
+    margin: 0 auto 1.5rem auto;
+}
+.header h1 {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+.profile-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+    cursor: pointer;
+}
+.profile-link a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 500;
+}
+.profile-link img {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+}
+#profile-dropdown {
+    display: none;
+    position: absolute;
+    top: 110%;
+    right: 0;
+    background: #fff;
+    color: #374151;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+    border-radius: 0.5rem;
+    min-width: 180px;
+    z-index: 50;
+}
+#profile-dropdown .dropdown-btn {
+    display: block;
+    width: 100%;
+    padding: 12px 20px;
+    background: none;
+    border: none;
+    text-align: left;
+    font-size: 1rem;
+    color: #374151;
+    cursor: pointer;
+    border-bottom: 1px solid #F3F4F6;
+}
+#profile-dropdown .dropdown-btn.sair {
+    color: #EF4444;
+}
+#profile-dropdown .dropdown-btn:last-child {
+    border-bottom: none;
+}
+/* ...demais estilos... */

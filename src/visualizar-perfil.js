@@ -18,8 +18,55 @@ if (typeof getToken === 'function') {
         } catch (e) {}
     }
 }
-fotoPerfil = "http://localhost:8080/usuarios/" + userId + "/fotoPerfil"; // URL da foto de perfil
+const fotoPerfil = "http://localhost:8080/usuarios/" + userId + "/fotoPerfil"; // URL da foto de perfil
 document.getElementById("profile-img").src = fotoPerfil;
+
+//-------------- carregar dados do perfil solicitado na query
+
+async function recuperarDadosPerfil(id, elementoNome, elementoBio) {
+
+
+    const url = apiConfig.baseUrl + `/usuarios/${id}`;
+    const headers = { "Content-Type": "application/json" };
+
+    const response = await fetch(url, { method: "GET", headers });
+    if (response.error) {
+        console.error("Erro ao recuperar dados do usuário:", response.error);
+        return;
+    }
+    const dadosUsuarioPerfil = await response.json();
+
+    console.log("Dados do usuário:", dadosUsuarioPerfil);
+
+    elementoNome.textContent = dadosUsuarioPerfil.nomeExibicao || "Nome não disponível";
+    elementoBio.textContent = dadosUsuarioPerfil.bio || "Bio não disponível";
+
+    
+    const fotoUsuarioPerfil = "http://localhost:8080/usuarios/" + id + "/fotoPerfil";
+    const imgElement = document.getElementById("profile-img-queried-user");
+
+fetch(fotoUsuarioPerfil)
+    .then(response => {
+        if (response.status === 200) {
+            imgElement.src = fotoUsuarioPerfil;
+        } else {
+            imgElement.src = "";
+        }
+    })
+    .catch(() => {
+        imgElement.src = "";
+    });
+
+}
+
+const parametros = new URLSearchParams(window.location.search);
+const usuarioPeril = parametros.get("usuario");
+
+
+const nomeUsuarioPerfil = document.getElementById("nome-usuario-perfil");
+const bioUsuarioPerfil = document.getElementById("bio-usuario-perfil");
+
+recuperarDadosPerfil(usuarioPeril, nomeUsuarioPerfil, bioUsuarioPerfil);
 
 //----------------------------------------
 //----------------------------------------
@@ -103,7 +150,7 @@ async function updateTimesForDate(date) {
     console.log("Data recebida em updateTimesForDate:", date);
 
     if (!timesByDate[date]) {
-        const newTimes = await getTimesByDate(date); // Busca os horários da API
+        const newTimes = await getTimesByDate(date, usuarioPeril); // Passa o id da URL
         timesByDate = { ...timesByDate, ...newTimes }; // Mescla os novos horários com os existentes
     }
 
@@ -182,28 +229,24 @@ nextWeekButton.addEventListener("click", async () => {
     await renderWeekDays(weekDays);
 });
 
-// Função para buscar horários disponíveis por data
-async function getTimesByDate(date) {
-    const times = await fetchAvailableTimes(date);
+// Função para buscar horários disponíveis por data e id de usuário/prestador
+async function getTimesByDate(date, userId) {
+    // Usa fetchPrestadorAppointments, já implementada em api-communication.js
+    const timesRaw = await fetchPrestadorAppointments({ userId, dateStr: date });
+
     const timesByDate = {};
 
-    if (times.error === "connection_error") {
-        return { error: "connection_error" }; // Propaga o erro de conexão
+    if (!Array.isArray(timesRaw)) {
+        return { [date]: [] };
     }
 
-    if (times.length === 0) {
-        return { [date]: [] }; // Retorna um registro vazio para a data
+    if (timesRaw.length === 0) {
+        return { [date]: [] };
     }
 
-    // Organiza os horários por data
-    times.forEach(({ date, time }) => {
-        if (!timesByDate[date]) {
-            timesByDate[date] = [];
-        }
-        timesByDate[date].push(time);
-    });
+    // O retorno de fetchPrestadorAppointments já é um array de horários (strings)
+    timesByDate[date] = timesRaw;
 
-    console.log("Horários organizados por data em getTimesByDate:", timesByDate);
     return timesByDate;
 }
 

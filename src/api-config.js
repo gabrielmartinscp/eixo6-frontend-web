@@ -44,5 +44,10 @@ const apiConfig = {
             method: "GET",
             body: null,
         },
+        getDadosPerfil: {
+            endpoint: "/usuario/{id}",
+            method: "GET",
+            body: null,
+        },
     },
 };

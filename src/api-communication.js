@@ -28,7 +28,7 @@ async function fetchPrestadorAppointments({ userId, dateStr, token }) {
         userId = 1;
         console.warn("Não foi possível recuperar o id do usuário autenticado. Usando id=1 para teste.");
     }
-    const url = getApiUrl('fetchPrestadorAppointments', { id: userId }) + (dateStr ? `?date=${encodeURIComponent(dateStr)}` : '');
+    const url = getApiUrl('fetchPrestadorAppointments', { id: userId });
     const headers = { "Content-Type": "application/json" };
     if (token) headers["Authorization"] = `Bearer ${token}`;
     try {
