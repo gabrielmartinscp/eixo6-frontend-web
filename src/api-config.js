@@ -39,5 +39,10 @@ const apiConfig = {
             method: "DELETE",
             body: null,
         },
+        getFotoPerfil: {
+            endpoint: "/usuario/{id}/fotoPerfil",
+            method: "GET",
+            body: null,
+        },
     },
 };

@@ -4,6 +4,26 @@ const nextWeekButton = document.getElementById("next-week");
 const currentMonthElement = document.getElementById("current-month");
 const availableTimesContainer = document.getElementById("available-times");
 
+//----------------------------------------
+//----------------------------------------
+//----------------------------------------
+// Recupera o id do usuário autenticado a partir do token JWT
+let userId = null;
+if (typeof getToken === 'function') {
+    const token = getToken();
+    if (token) {
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            if (payload && payload.id) userId = payload.id;
+        } catch (e) {}
+    }
+}
+fotoPerfil = "http://localhost:8080/usuarios/" + userId + "/fotoPerfil"; // URL da foto de perfil
+document.getElementById("profile-img").src = fotoPerfil;
+
+//----------------------------------------
+//----------------------------------------
+//----------------------------------------
 let currentDate = new Date(); // Data atual
 let timesByDate = {}; // Registro de horários por data
 

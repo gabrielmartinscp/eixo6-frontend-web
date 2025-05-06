@@ -103,10 +103,9 @@ async function makeApiRequest(requestName, params = {}) {
             });
         }
 
-        //setToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJBUEkgZWl4byA2Iiwic3ViIjoidGVzdGUiLCJleHAiOjE3NTI0MTY2ODIsImlkIjoxfQ.5TJl4T4Jf1ImGnV6y0icIefAjqBCrqjjfdUDtNO_F30");
         // Recupera o token JWT
         const token = getToken();
-        console.log("Token JWT enviado:", token); // Log para depuração
+        //console.log("Token JWT enviado:", token); // Log para depuração
 
         // Configura os cabeçalhos da requisição
         const headers = {

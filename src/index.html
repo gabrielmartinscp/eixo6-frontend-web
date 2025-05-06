@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>EasyBook</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="index.css">
 </head>
 <body>
@@ -27,8 +28,6 @@
       </form>
       <p class="link">Já possui conta? <a href="#" onclick="showScreen('login')">Acesse aqui</a></p>
     </div>
-    <!-- Cadastro Servidor -->
-    
     <!-- Login -->
     <div id="login" class="screen active">
       <h2>Entrar</h2>
@@ -38,13 +37,12 @@
         <button type="submit">Fazer Login</button>
       </form>
       <p class="link">Não tem uma conta? <a href="#" onclick="showScreen('cadastro')">Cadastre-se!</a></p>
-      <p id="loginError" style="color: red; display: none; margin-top: 10px;">Usuário ou senha inválidos.</p>
+      <p id="loginError" style="color: var(--danger, red); display: none; margin-top: 10px;">Usuário ou senha inválidos.</p>
     </div>
   </div>
   <!-- Transição de Tela e Login -->
   <script src="auth.js"></script>
   <script>
-    console.log('setToken:', typeof setToken);
     function showScreen(screenId) {
       document.querySelectorAll('.screen').forEach(div => div.classList.remove('active'));
       document.getElementById(screenId).classList.add('active');
@@ -75,11 +73,8 @@
         }
 
         const data = await response.json();
-        console.log('Dados recebidos:', data);
         if (data && data.token) {
-          console.log('Login bem-sucedido:', data.token);
           setToken(data.token); // Função definida em auth.js
-          // Redirecionar ou atualizar a interface conforme necessário
           window.location.href = "template-home.html";
         } else {
           loginError.style.display = 'block';
