@@ -29,42 +29,10 @@
         <div id="message"></div>
     </div>
     <footer>
-        <a href="template-home.html">Cancelar</a></p>
+        <a href="template-profissional.html">Cancelar</a></p>
     </footer>
     <script src="auth.js"></script>
     <script src="atualizar-perfil.js"></script>
-    <script>
-        //----------------------------------------
-        //----------------------------------------
-        //----------------------------------------
-        // Recupera o id do usuário autenticado a partir do token JWT
-        let userId = null;
-        if (typeof getToken === 'function') {
-            const token = getToken();
-            if (token) {
-                try {
-                    const payload = JSON.parse(atob(token.split('.')[1]));
-                    if (payload && payload.id) userId = payload.id;
-                } catch (e) { }
-            }
-        }
-        fotoPerfil = "http://localhost:8080/usuarios/" + userId + "/fotoPerfil"; // URL da foto de perfil
-        document.getElementById("profileImage").src = fotoPerfil;
-
-        //----------------------------------------
-        //----------------------------------------
-        //----------------------------------------
-        // Preview da imagem de perfil
-        document.getElementById('fotoPerfil').addEventListener('change', function (e) {
-            if (e.target.files && e.target.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function (ev) {
-                    document.getElementById('profileImage').src = ev.target.result;
-                };
-                reader.readAsDataURL(e.target.files[0]);
-            }
-        });
-    </script>
 </body>
 
 </html>

@@ -41,6 +41,8 @@ async function recuperarDadosPerfil(id, elementoNome, elementoBio) {
     elementoNome.textContent = dadosUsuarioPerfil.nomeExibicao || "Nome não disponível";
     elementoBio.textContent = dadosUsuarioPerfil.bio || "Bio não disponível";
 
+    document.title = dadosUsuarioPerfil.nomeExibicao + " - EasyBook" || "EasyBook";
+
     
     const fotoUsuarioPerfil = "http://localhost:8080/usuarios/" + id + "/fotoPerfil";
     const imgElement = document.getElementById("profile-img-queried-user");

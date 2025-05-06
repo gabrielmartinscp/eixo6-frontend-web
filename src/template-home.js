@@ -252,7 +252,7 @@ document.addEventListener('click', function(e) {
 
 const dropdownBtns = dropdown.querySelectorAll('.dropdown-btn');
 dropdownBtns[0].onclick = function() { window.location.href = "template-home.html"; };
-dropdownBtns[1].onclick = function() { window.location.href = "template-servidor.html"; };
+dropdownBtns[1].onclick = function() { window.location.href = "template-profissional.html"; };
 dropdownBtns[2].onclick = function() { window.location.href = "atualizar-perfil.html"; };
 dropdownBtns[3].onclick = function() {
     if (confirm("Deseja mesmo se desconectar?")) {

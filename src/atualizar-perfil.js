@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const result = await response.json();
                 alert('Perfil atualizado com sucesso!');
                 messageDiv.textContent = "Perfil atualizado com sucesso!";
-                window.location = "template-home.html"; // Recarrega a página para refletir as mudanças
+                window.location = "template-profissional.html"; // Recarrega a página para refletir as mudanças
                 //console.log(result);
             } else {
                 let errorMsg = "Erro ao atualizar perfil.";
@@ -80,3 +80,34 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+//----------------------------------------
+        //----------------------------------------
+        //----------------------------------------
+        // Recupera o id do usuário autenticado a partir do token JWT
+        let userId = null;
+        if (typeof getToken === 'function') {
+            const token = getToken();
+            if (token) {
+                try {
+                    const payload = JSON.parse(atob(token.split('.')[1]));
+                    if (payload && payload.id) userId = payload.id;
+                } catch (e) { }
+            }
+        }
+        fotoPerfil = "http://localhost:8080/usuarios/" + userId + "/fotoPerfil"; // URL da foto de perfil
+        document.getElementById("profileImage").src = fotoPerfil;
+
+        //----------------------------------------
+        //----------------------------------------
+        //----------------------------------------
+        // Preview da imagem de perfil
+        document.getElementById('fotoPerfil').addEventListener('change', function (e) {
+            if (e.target.files && e.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (ev) {
+                    document.getElementById('profileImage').src = ev.target.result;
+                };
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
