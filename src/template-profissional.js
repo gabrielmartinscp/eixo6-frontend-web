@@ -69,19 +69,40 @@ async function renderAppointments(dateStr) {
 
     const userId = getCurrentUserId();
     const token = typeof getToken === 'function' ? getToken() : undefined;
-    // Busca todos os horários do prestador para a data selecionada
-    const appointments = await fetchPrestadorAppointments({ userId, dateStr, token });
 
-    if (!appointments || appointments.length === 0) {
-        noAppointmentsMsg.textContent = `Nenhum horário agendado para ${dateStr.split('-').reverse().join('/')}.`;
+    // Nova consulta simplificada: /horarios/prestador/{id}/{data}
+    const url = `${apiConfig.baseUrl}/horarios/prestador/${userId}/${dateStr}`;
+    const headers = { "Content-Type": "application/json" };
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+
+    try {
+        const response = await fetch(url, { method: "GET", headers });
+        if (!response.ok) throw new Error("Erro ao buscar horários do prestador");
+        const data = await response.json();
+
+        // Espera-se que a resposta seja um array de horários ou um objeto com .content
+        let appointments = [];
+        if (Array.isArray(data)) {
+            appointments = data.map(item => item.horarioInicial || item);
+        } else if (data && Array.isArray(data.content)) {
+            appointments = data.content.map(item => item.horarioInicial || item);
+        }
+
+        if (!appointments || appointments.length === 0) {
+            noAppointmentsMsg.textContent = `Nenhum horário agendado para ${dateStr.split('-').reverse().join('/')}.`;
+            noAppointmentsMsg.style.display = 'block';
+        } else {
+            appointments.forEach(time => {
+                const timeElement = document.createElement('div');
+                timeElement.className = 'appointment-time';
+                timeElement.textContent = time;
+                appointmentsContainer.appendChild(timeElement);
+            });
+        }
+    } catch (err) {
+        noAppointmentsMsg.textContent = "Erro ao buscar horários.";
         noAppointmentsMsg.style.display = 'block';
-    } else {
-        appointments.forEach(time => {
-            const timeElement = document.createElement('div');
-            timeElement.className = 'appointment-time';
-            timeElement.textContent = time;
-            appointmentsContainer.appendChild(timeElement);
-        });
+        console.error(err);
     }
 }
 
@@ -229,11 +250,35 @@ function renderProgrammedEditor() {
 async function loadSpecificDaySchedules(dateStr) {
     const userId = getCurrentUserId();
     const token = typeof getToken === 'function' ? getToken() : undefined;
-    const horarios = await fetchPrestadorHorariosByDate({ userId, dateStr, token });
-    specificDateSchedules[dateStr] = horarios.map(item => ({
-        id: item.id,
-        horarioInicial: item.horarioInicial
-    }));
+
+    // Nova consulta simplificada: /horarios/prestador/{id}/{data}
+    const url = `${apiConfig.baseUrl}/horarios/prestador/${userId}/${dateStr}`;
+    const headers = { "Content-Type": "application/json" };
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+
+    try {
+        const response = await fetch(url, { method: "GET", headers });
+        if (!response.ok) throw new Error("Erro ao buscar horários do prestador");
+        const data = await response.json();
+
+        // Espera-se que a resposta seja um array de objetos com id, data, horarioInicial
+        let horarios = [];
+        if (Array.isArray(data)) {
+            horarios = data.map(item => ({
+                id: item.id,
+                horarioInicial: item.horarioInicial || item
+            }));
+        } else if (data && Array.isArray(data.content)) {
+            horarios = data.content.map(item => ({
+                id: item.id,
+                horarioInicial: item.horarioInicial || item
+            }));
+        }
+        specificDateSchedules[dateStr] = horarios;
+    } catch (err) {
+        specificDateSchedules[dateStr] = [];
+        console.error(err);
+    }
 }
 
 async function renderSpecificDayEditor(dateStr) {
@@ -426,7 +471,6 @@ nextMonthButtonSpecific.addEventListener('click', () => {
     document.getElementById('edit-specific').classList.add('hidden-section');
 })();
 
-
 // --- Navegação ---
 (function() {
     let userId = null;
@@ -443,32 +487,3 @@ nextMonthButtonSpecific.addEventListener('click', () => {
         document.getElementById("profile-img").src = "http://localhost:8080/usuarios/" + userId + "/fotoPerfil";
     }
 })();
-
-const profileLink = document.getElementById('profile-link');
-const dropdown = document.getElementById('profile-dropdown');
-let dropdownOpen = false;
-
-profileLink.addEventListener('click', function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    dropdown.style.display = dropdownOpen ? 'none' : 'block';
-    dropdownOpen = !dropdownOpen;
-});
-
-document.addEventListener('click', function(e) {
-    if (dropdownOpen && !profileLink.contains(e.target)) {
-        dropdown.style.display = 'none';
-        dropdownOpen = false;
-    }
-});
-
-const dropdownBtns = dropdown.querySelectorAll('.dropdown-btn');
-dropdownBtns[0].onclick = function() { window.location.href = "template-home.html"; };
-dropdownBtns[1].onclick = function() { window.location.href = "template-servidor.html"; };
-dropdownBtns[2].onclick = function() { window.location.href = "atualizar-perfil.html"; };
-dropdownBtns[3].onclick = function() {
-    if (confirm("Deseja mesmo se desconectar?")) {
-        if (typeof removeToken === 'function') removeToken();
-        window.location.href = "index.html";
-    }
-};

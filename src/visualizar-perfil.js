@@ -233,23 +233,25 @@ nextWeekButton.addEventListener("click", async () => {
 
 // Função para buscar horários disponíveis por data e id de usuário/prestador
 async function getTimesByDate(date, userId) {
-    // Usa fetchPrestadorAppointments, já implementada em api-communication.js
-    const timesRaw = await fetchPrestadorAppointments({ userId, dateStr: date });
-
-    const timesByDate = {};
-
-    if (!Array.isArray(timesRaw)) {
+    // Nova rota: /horarios/prestador/{id}/{data}
+    const url = apiConfig.baseUrl + `/horarios/prestador/${userId}/${date}`;
+    const headers = { "Content-Type": "application/json" };
+    try {
+        const response = await fetch(url, { method: "GET", headers });
+        if (!response.ok) return { [date]: [] };
+        const data = await response.json();
+        // Espera-se que a resposta seja um array de horários ou um objeto com .content
+        let horarios = [];
+        if (Array.isArray(data)) {
+            horarios = data.map(item => item.horarioInicial || item);
+        } else if (data && Array.isArray(data.content)) {
+            horarios = data.content.map(item => item.horarioInicial || item);
+        }
+        return { [date]: horarios };
+    } catch (err) {
+        console.error("Erro ao buscar horários do prestador:", err);
         return { [date]: [] };
     }
-
-    if (timesRaw.length === 0) {
-        return { [date]: [] };
-    }
-
-    // O retorno de fetchPrestadorAppointments já é um array de horários (strings)
-    timesByDate[date] = timesRaw;
-
-    return timesByDate;
 }
 
 // Inicializa o calendário com a semana atual
@@ -276,32 +278,3 @@ async function getTimesByDate(date, userId) {
         document.getElementById("profile-img").src = "http://localhost:8080/usuarios/" + userId + "/fotoPerfil";
     }
 })();
-
-const profileLink = document.getElementById('profile-link');
-const dropdown = document.getElementById('profile-dropdown');
-let dropdownOpen = false;
-
-profileLink.addEventListener('click', function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    dropdown.style.display = dropdownOpen ? 'none' : 'block';
-    dropdownOpen = !dropdownOpen;
-});
-
-document.addEventListener('click', function(e) {
-    if (dropdownOpen && !profileLink.contains(e.target)) {
-        dropdown.style.display = 'none';
-        dropdownOpen = false;
-    }
-});
-
-const dropdownBtns = dropdown.querySelectorAll('.dropdown-btn');
-dropdownBtns[0].onclick = function() { window.location.href = "template-home.html"; };
-dropdownBtns[1].onclick = function() { window.location.href = "template-servidor.html"; };
-dropdownBtns[2].onclick = function() { window.location.href = "atualizar-perfil.html"; };
-dropdownBtns[3].onclick = function() {
-    if (confirm("Deseja mesmo se desconectar?")) {
-        if (typeof removeToken === 'function') removeToken();
-        window.location.href = "index.html";
-    }
-};
