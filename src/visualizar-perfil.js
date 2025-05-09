@@ -183,8 +183,11 @@ function renderAvailableTimes(timesByDate) {
             timeButton.addEventListener("click", async () => {
                 const token = typeof getToken === 'function' ? getToken() : undefined;
             try {
-                await agendarHorario({ idHorario: timesByDate[time].id, idCliente: userId, token });
-                alert("Horário agendado com sucesso!");
+                let confirmacao = confirm(`Deseja mesmo agendar às ${timesByDate[time].horarioInicial} do dia ${timesByDate[time].data}?`);
+                if(confirmacao) {
+                    await agendarHorario({ idHorario: timesByDate[time].id, idCliente: userId, token });
+                    alert("Horário agendado com sucesso!");
+                }
                 await updateTimesForDate(timesByDate[time].data); // Atualiza os horários para a data selecionada
             } catch (e) {
                 alert("Erro ao agendar horário.");
