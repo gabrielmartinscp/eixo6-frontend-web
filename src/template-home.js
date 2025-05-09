@@ -231,21 +231,3 @@ async function getTimesByDate(date) {
         document.getElementById("profile-img").src = "http://localhost:8080/usuarios/" + userId + "/fotoPerfil";
     }
 })();
-
-const profileLink = document.getElementById('profile-link');
-const dropdown = document.getElementById('profile-dropdown');
-let dropdownOpen = false;
-
-profileLink.addEventListener('click', function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    dropdown.style.display = dropdownOpen ? 'none' : 'block';
-    dropdownOpen = !dropdownOpen;
-});
-
-document.addEventListener('click', function(e) {
-    if (dropdownOpen && !profileLink.contains(e.target)) {
-        dropdown.style.display = 'none';
-        dropdownOpen = false;
-    }
-});

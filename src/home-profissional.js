@@ -26,9 +26,9 @@ const specificDayPlaceholder = document.getElementById('specific-day-placeholder
 const dayAbbreviations = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 const weekDayNamesFull = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
 const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-let currentDate = new Date(2025, 4, 5); // Para visualização de agenda
-let selectedDateStr = '2025-05-07'; // Para visualização de agenda
-let specificCalendarDate = new Date(2025, 4, 1); // Mês/Ano atual do calendário específico
+let currentDate = new Date(); // Para visualização de agenda
+let selectedDateStr = new Date().toISOString().split('T')[0]; // Para visualização de agenda
+let specificCalendarDate = new Date(); // Mês/Ano atual do calendário específico
 let specificSelectedDateStr = null; // Data selecionada no calendário específico (YYYY-MM-DD)
 let programmedSchedule = {
     'Dom': [],
@@ -56,7 +56,7 @@ function getCurrentUserId() {
             try {
                 const payload = JSON.parse(atob(token.split('.')[1]));
                 if (payload && payload.id) return payload.id;
-            } catch (e) {}
+            } catch (e) { }
         }
     }
     //return 1; // fallback para teste
@@ -187,9 +187,23 @@ function createTimeSlotElement(dayKey, startTime = '', isSpecific = false, horar
     if (isSpecific && horarioId) {
         saveButton = document.createElement('button');
         saveButton.type = 'button';
-        saveButton.className = 'action-button add-button ml-2';
+        saveButton.className = 'action-button add-button ml-2 save-slot-btn';
         saveButton.innerHTML = '💾';
         saveButton.title = 'Salvar alteração';
+        saveButton.disabled = true;
+        saveButton.classList.add('disabled-save');
+
+        // Habilita/desabilita o botão conforme alteração
+        startInput.addEventListener('input', () => {
+            if (startInput.value !== startTime) {
+                saveButton.disabled = false;
+                saveButton.classList.remove('disabled-save');
+            } else {
+                saveButton.disabled = true;
+                saveButton.classList.add('disabled-save');
+            }
+        });
+
         saveButton.onclick = async () => {
             const token = typeof getToken === 'function' ? getToken() : undefined;
             try {
@@ -200,6 +214,10 @@ function createTimeSlotElement(dayKey, startTime = '', isSpecific = false, horar
                     token
                 });
                 alert("Horário atualizado!");
+                // Após salvar, atualiza o valor original e desabilita o botão novamente
+                startTime = startInput.value;
+                saveButton.disabled = true;
+                saveButton.classList.add('disabled-save');
             } catch (e) {
                 alert("Erro ao atualizar horário.");
             }
@@ -246,7 +264,6 @@ function renderProgrammedEditor() {
     });
 }
 
-// --- Funções para Edição Específica ---
 async function loadSpecificDaySchedules(dateStr) {
     const userId = getCurrentUserId();
     const token = typeof getToken === 'function' ? getToken() : undefined;
@@ -395,6 +412,11 @@ saveSpecificDayButton.addEventListener('click', async () => {
                 erro = true;
             }
         }
+        const saveButtons = specificDaySlotsContainer.querySelectorAll('.save-slot-btn');
+        for (const saveButton of saveButtons) {
+            saveButton.disabled = true;
+            saveButton.classList.add('disabled-save');
+        }
     }
     if (!erro) {
         alert(`Horários para ${specificSelectedDateStr.split('-').reverse().join('/')} salvos com sucesso!`);
@@ -433,6 +455,7 @@ nextWeekButton.addEventListener('click', async () => {
     renderWeekDays();
     await renderAppointments(selectedDateStr);
 });
+/*
 saveProgrammedButton.addEventListener('click', () => {
     console.log("Salvando agenda programada...");
     const updatedSchedule = {};
@@ -453,6 +476,7 @@ saveProgrammedButton.addEventListener('click', () => {
     console.log("Agenda atualizada:", programmedSchedule);
     alert("Agenda programada salva com sucesso! (Verifique o console para detalhes)");
 });
+*/
 prevMonthButtonSpecific.addEventListener('click', () => {
     specificCalendarDate.setMonth(specificCalendarDate.getMonth() - 1);
     renderSpecificCalendar();
@@ -467,12 +491,12 @@ nextMonthButtonSpecific.addEventListener('click', () => {
     renderWeekDays();
     await renderAppointments(selectedDateStr);
     document.getElementById('view-agenda').classList.remove('hidden-section');
-    document.getElementById('edit-programmed').classList.add('hidden-section');
+    //document.getElementById('edit-programmed').classList.add('hidden-section');
     document.getElementById('edit-specific').classList.add('hidden-section');
 })();
 
 // --- Navegação ---
-(function() {
+(function () {
     let userId = null;
     if (typeof getToken === 'function') {
         const token = getToken();
@@ -480,7 +504,7 @@ nextMonthButtonSpecific.addEventListener('click', () => {
             try {
                 const payload = JSON.parse(atob(token.split('.')[1]));
                 if (payload && payload.id) userId = payload.id;
-            } catch (e) {}
+            } catch (e) { }
         }
     }
     if (userId) {

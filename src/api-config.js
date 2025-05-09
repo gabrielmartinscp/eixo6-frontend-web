@@ -6,6 +6,11 @@ const apiConfig = {
             method: "GET",
             body: null,
         },
+        fetchAvailableTimesByPrestadorAndDate: {
+            endpoint: (idPrestador, data) => {return `/horarios/prestador/${idPrestador}/${data}`},
+            method: "GET",
+            body: null,
+        },
         fetchPrestadorAppointments: {
             endpoint: "/horarios/prestador/{id}",
             method: "GET",

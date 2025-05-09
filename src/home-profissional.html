@@ -6,7 +6,7 @@
     <title>Home - profissional</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="template-profissional.css">
+    <link rel="stylesheet" href="home-profissional.css">
 </head>
 <body class="p-4 md:p-8">
 
@@ -27,8 +27,8 @@
     <nav class="max-w-4xl mx-auto mb-4 border-b border-gray-200">
         <div class="flex justify-center space-x-4">
             <button id="tab-view-agenda" data-target="view-agenda" class="nav-tab active">Visualizar Agenda</button>
-            <button id="tab-edit-programmed" data-target="edit-programmed" class="nav-tab">Edição Programada</button>
-            <button id="tab-edit-specific" data-target="edit-specific" class="nav-tab">Edição Específica</button>
+            <!--<button id="tab-edit-programmed" data-target="edit-programmed" class="nav-tab">Edição Programada</button>-->
+            <button id="tab-edit-specific" data-target="edit-specific" class="nav-tab">Editar Agenda</button>
         </div>
     </nav>
 
@@ -66,6 +66,7 @@
                 </div>
             </section>
         </div>
+        <!--
         <div id="edit-programmed" class="content-section hidden-section">
             <h2 class="text-xl font-semibold text-center text-gray-800 mb-6">Edição de Agenda Programada</h2>
             <div class="flex flex-col md:flex-row md:items-center gap-4 mb-8">
@@ -81,8 +82,9 @@
                 <button id="save-programmed-schedule" class="save-button">Salvar</button>
             </div>
         </div>
+        -->
         <div id="edit-specific" class="content-section hidden-section">
-            <h2 class="text-xl font-semibold text-center text-gray-800 mb-4">Edição de Data Específica</h2>
+            <h2 class="text-xl font-semibold text-center text-gray-800 mb-4">Editar Agenda</h2>
             <div class="calendar-container mb-8">
                 <div class="calendar-header">
                     <button id="prev-month-specific" aria-label="Mês anterior" class="nav-button">&lt;</button>
@@ -116,7 +118,7 @@
     <script src="auth.js"></script>
     <script src="api-config.js"></script>
     <script src="api-communication.js"></script>
-    <script src="template-profissional.js"></script>
+    <script src="home-profissional.js"></script>
     <script src="menu-dropdown.js"></script>
 </body>
 </html>

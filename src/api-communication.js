@@ -144,6 +144,7 @@ async function fetchAvailableTimes(date) {
             const times = response.content.map((item) => ({
                 date: item.data, // Mapeia a propriedade "data" para "date"
                 time: item.horarioInicial, // Mapeia a propriedade "horarioInicial" para "time"
+                id: item.id, // Mapeia a propriedade "id" para "id"
             }));
             console.log("Horários mapeados:", times); // Verifica os horários mapeados
             return times;
@@ -157,6 +158,7 @@ async function fetchAvailableTimes(date) {
         return []; // Retorna um array vazio em caso de erro genérico
     }
 }
+
 
 // Função para organizar os horários em um registro JSON
 async function getTimesByDate(date) {
@@ -232,7 +234,6 @@ async function deleteHorario({ id, token }) {
 }
 
 // Função para atualizar um horário (PUT)
-// Corrigido: endpoint é /horarios e o corpo deve conter { id, data, horarioInicial }
 async function updateHorario({ id, data, horarioInicial, token }) {
     // Usa o endpoint centralizado do api-config.js
     const url = apiConfig.baseUrl + apiConfig.requests.updateHorario.endpoint;
@@ -249,6 +250,22 @@ async function updateHorario({ id, data, horarioInicial, token }) {
     }
 }
 
+async function agendarHorario({ idHorario, idCliente, token }) {
+    const url = apiConfig.baseUrl + `/horarios/agendar`;
+    const headers = { "Content-Type": "application/json" };
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+    const body = JSON.stringify({ idHorario, idCliente });
+    console.log("Agendando horário:", body); // Log para depuração
+    try {
+        const response = await fetch(url, { method: "PUT", headers, body });
+        if (!response.ok) throw new Error("Erro ao agendar horário");
+        return await response.json();
+    } catch (err) {
+        console.error("Erro ao agendar horário:", err);
+        throw err;
+    }
+}
+
 // Torna as funções acessíveis globalmente
 window.fetchAvailableTimes = fetchAvailableTimes;
 window.getTimesByDate = getTimesByDate;
@@ -259,3 +276,4 @@ window.fetchPrestadorHorariosByDate = fetchPrestadorHorariosByDate;
 window.createHorario = createHorario;
 window.deleteHorario = deleteHorario;
 window.updateHorario = updateHorario;
+window.agendarHorario = agendarHorario;

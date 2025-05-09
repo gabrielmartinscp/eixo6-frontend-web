@@ -62,13 +62,13 @@ fetch(fotoUsuarioPerfil)
 }
 
 const parametros = new URLSearchParams(window.location.search);
-const usuarioPeril = parametros.get("usuario");
+const usuarioPerfil = parametros.get("usuario");
 
 
 const nomeUsuarioPerfil = document.getElementById("nome-usuario-perfil");
 const bioUsuarioPerfil = document.getElementById("bio-usuario-perfil");
 
-recuperarDadosPerfil(usuarioPeril, nomeUsuarioPerfil, bioUsuarioPerfil);
+recuperarDadosPerfil(usuarioPerfil, nomeUsuarioPerfil, bioUsuarioPerfil);
 
 //----------------------------------------
 //----------------------------------------
@@ -152,34 +152,46 @@ async function updateTimesForDate(date) {
     console.log("Data recebida em updateTimesForDate:", date);
 
     if (!timesByDate[date]) {
-        const newTimes = await getTimesByDate(date, usuarioPeril); // Passa o id da URL
-        timesByDate = { ...timesByDate, ...newTimes }; // Mescla os novos horários com os existentes
+        const newTimes = await getTimesByDateAndPrestador(date, userId); // Passa o id da URL
+        timesByDate = { ...newTimes }; // Mescla os novos horários com os existentes
     }
 
     console.log("timesByDate após atualização:", timesByDate);
-    renderAvailableTimes(date);
+    renderAvailableTimes(timesByDate, userId);
 }
 
 // Função para renderizar os horários disponíveis
-function renderAvailableTimes(date) {
+function renderAvailableTimes(timesByDate) {
     const availableTimesContainer = document.getElementById("available-times");
     if (!availableTimesContainer) {
         console.error("Elemento com ID 'available-times' não encontrado.");
         return;
     }
 
-    console.log("Renderizando horários para a data:", date);
-    console.log("Horários disponíveis em renderAvailableTimes:", timesByDate[date]);
+    console.log("Renderizando horários para a data:", timesByDate);
 
     availableTimesContainer.innerHTML = ""; // Limpa os horários anteriores
 
-    if (timesByDate[date] && timesByDate[date].length > 0) {
-        timesByDate[date].forEach((time) => {
+    console.log(timesByDate);
+    console.log(timesByDate.length);
+    if (timesByDate && Object.keys(timesByDate).length > 0) {
+        for(time in timesByDate) {
+            
             const timeButton = document.createElement("button");
-            timeButton.textContent = time;
+            timeButton.textContent = timesByDate[time].horarioInicial;
             timeButton.classList.add("time-button");
+            timeButton.addEventListener("click", async () => {
+                const token = typeof getToken === 'function' ? getToken() : undefined;
+            try {
+                await agendarHorario({ idHorario: timesByDate[time].id, idCliente: userId, token });
+                alert("Horário agendado com sucesso!");
+                await updateTimesForDate(timesByDate[time].data); // Atualiza os horários para a data selecionada
+            } catch (e) {
+                alert("Erro ao agendar horário.");
+            }
+            });
             availableTimesContainer.appendChild(timeButton);
-        });
+        };
     } else {
         availableTimesContainer.textContent = "Nenhum horário disponível.";
     }
@@ -232,27 +244,29 @@ nextWeekButton.addEventListener("click", async () => {
 });
 
 // Função para buscar horários disponíveis por data e id de usuário/prestador
-async function getTimesByDate(date, userId) {
+async function getTimesByDateAndPrestador(date, userId) {
     // Nova rota: /horarios/prestador/{id}/{data}
-    const url = apiConfig.baseUrl + `/horarios/prestador/${userId}/${date}`;
+    const url = apiConfig.baseUrl + `/horarios/prestador/disponivel/${userId}/${date}`;
     const headers = { "Content-Type": "application/json" };
     try {
         const response = await fetch(url, { method: "GET", headers });
-        if (!response.ok) return { [date]: [] };
-        const data = await response.json();
-        // Espera-se que a resposta seja um array de horários ou um objeto com .content
-        let horarios = [];
-        if (Array.isArray(data)) {
-            horarios = data.map(item => item.horarioInicial || item);
-        } else if (data && Array.isArray(data.content)) {
-            horarios = data.content.map(item => item.horarioInicial || item);
+
+        const json = await response.json(); // Verifica a resposta da API
+
+        // Verifica se a resposta contém a propriedade "content"
+        if (json && json.content) {
+            return json.content; // Retorna o conteúdo da resposta
         }
-        return { [date]: horarios };
-    } catch (err) {
-        console.error("Erro ao buscar horários do prestador:", err);
-        return { [date]: [] };
+
+        return []; // Retorna um array vazio se "content" não estiver presente
+    } catch (error) {
+        if (error.message === "connection_error") {
+            return { error: "connection_error" }; // Retorna um erro de conexão
+        }
+        return []; // Retorna um array vazio em caso de erro genérico
     }
 }
+
 
 // Inicializa o calendário com a semana atual
 (async () => {
