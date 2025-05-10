@@ -19,11 +19,11 @@
     <!-- Cadastro Cliente  -->
     <div id="cadastro" class="screen">
       <h2>Cadastro</h2>
-      <form>
-        <input type="email" placeholder="Digite seu e-mail" required>
-        <input type="text" placeholder="Digite seu nome completo" required>
-        <input type="password" placeholder="Digite sua senha" required>
-        <input type="password" placeholder="Confirme sua senha" required>
+      <form autocomplete="off" id="cadastroForm">
+        <input type="text" id="cadastroUsuario" autocomplete="new-username" placeholder="Digite seu nome de usuário" required>
+        <input type="text" id="cadastroNome" autocomplete="off" placeholder="Digite seu nome completo" required>
+        <input type="password" id="cadastroSenha" autocomplete="new-password" placeholder="Digite sua senha" required>
+        <input type="password" autocomplete="off" placeholder="Confirme sua senha" required>
         <button type="submit">Cadastrar-se</button>
       </form>
       <p class="link">Já possui conta? <a href="#" onclick="showScreen('login')">Acesse aqui</a></p>
@@ -37,7 +37,7 @@
         <button type="submit">Fazer Login</button>
       </form>
       <p class="link">Não tem uma conta? <a href="#" onclick="showScreen('cadastro')">Cadastre-se!</a></p>
-      <p id="loginError" style="color: var(--danger, red); display: none; margin-top: 10px;">Usuário ou senha inválidos.</p>
+      <p id="error" style="color: var(--danger, red); display: none; margin-top: 10px;">Usuário ou senha inválidos.</p>
     </div>
   </div>
   <!-- Transição de Tela e Login -->

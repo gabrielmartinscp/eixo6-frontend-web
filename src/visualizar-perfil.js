@@ -39,7 +39,7 @@ async function recuperarDadosPerfil(id, elementoNome, elementoBio) {
     console.log("Dados do usuário:", dadosUsuarioPerfil);
 
     elementoNome.textContent = dadosUsuarioPerfil.nomeExibicao || "Nome não disponível";
-    elementoBio.textContent = dadosUsuarioPerfil.bio || "Bio não disponível";
+    //elementoBio.textContent = dadosUsuarioPerfil.bio || "Bio não disponível";
 
     document.title = dadosUsuarioPerfil.nomeExibicao + " - EasyBook" || "EasyBook";
 
@@ -62,13 +62,13 @@ fetch(fotoUsuarioPerfil)
 }
 
 const parametros = new URLSearchParams(window.location.search);
-const usuarioPerfil = parametros.get("usuario");
+const usuarioURL = parametros.get("usuario");
 
 
 const nomeUsuarioPerfil = document.getElementById("nome-usuario-perfil");
 const bioUsuarioPerfil = document.getElementById("bio-usuario-perfil");
 
-recuperarDadosPerfil(usuarioPerfil, nomeUsuarioPerfil, bioUsuarioPerfil);
+recuperarDadosPerfil(usuarioURL, nomeUsuarioPerfil, bioUsuarioPerfil);
 
 //----------------------------------------
 //----------------------------------------
@@ -152,12 +152,12 @@ async function updateTimesForDate(date) {
     console.log("Data recebida em updateTimesForDate:", date);
 
     if (!timesByDate[date]) {
-        const newTimes = await getTimesByDateAndPrestador(date, userId); // Passa o id da URL
+        const newTimes = await getTimesByDateAndPrestador(date, usuarioURL); // Passa o id da URL
         timesByDate = { ...newTimes }; // Mescla os novos horários com os existentes
     }
 
     console.log("timesByDate após atualização:", timesByDate);
-    renderAvailableTimes(timesByDate, userId);
+    renderAvailableTimes(timesByDate, usuarioURL);
 }
 
 // Função para renderizar os horários disponíveis
@@ -172,23 +172,27 @@ function renderAvailableTimes(timesByDate) {
 
     availableTimesContainer.innerHTML = ""; // Limpa os horários anteriores
 
-    console.log(timesByDate);
     console.log(timesByDate.length);
     if (timesByDate && Object.keys(timesByDate).length > 0) {
         for(time in timesByDate) {
             
+            console.log("timesByDate: "+ timesByDate[time].horarioInicial);
+
             const timeButton = document.createElement("button");
+            timeButton.dataset.horarioInicial = timesByDate[time].horarioInicial; // Adiciona o horário como atributo de dados
+            timeButton.dataset.data = timesByDate[time].data; // Adiciona a data como atributo de dados 
+            timeButton.dataset.id = timesByDate[time].id; // Adiciona o id do horário como atributo de dados
             timeButton.textContent = timesByDate[time].horarioInicial;
             timeButton.classList.add("time-button");
             timeButton.addEventListener("click", async () => {
                 const token = typeof getToken === 'function' ? getToken() : undefined;
             try {
-                let confirmacao = confirm(`Deseja mesmo agendar às ${timesByDate[time].horarioInicial} do dia ${timesByDate[time].data}?`);
+                let confirmacao = confirm(`Deseja mesmo agendar às ${timeButton.dataset.horarioInicial} do dia ${timeButton.dataset.data}?`);
                 if(confirmacao) {
-                    await agendarHorario({ idHorario: timesByDate[time].id, idCliente: userId, token });
+                    await agendarHorario({ idHorario: timeButton.dataset.id, idCliente: userId, token });
                     alert("Horário agendado com sucesso!");
                 }
-                await updateTimesForDate(timesByDate[time].data); // Atualiza os horários para a data selecionada
+                await updateTimesForDate(timeButton.dataset.data); // Atualiza os horários para a data selecionada
             } catch (e) {
                 alert("Erro ao agendar horário.");
             }
@@ -247,9 +251,9 @@ nextWeekButton.addEventListener("click", async () => {
 });
 
 // Função para buscar horários disponíveis por data e id de usuário/prestador
-async function getTimesByDateAndPrestador(date, userId) {
+async function getTimesByDateAndPrestador(date, usuarioURL) {
     // Nova rota: /horarios/prestador/{id}/{data}
-    const url = apiConfig.baseUrl + `/horarios/prestador/disponivel/${userId}/${date}`;
+    const url = apiConfig.baseUrl + `/horarios/prestador/disponivel/${usuarioURL}/${date}`;
     const headers = { "Content-Type": "application/json" };
     try {
         const response = await fetch(url, { method: "GET", headers });
@@ -275,23 +279,4 @@ async function getTimesByDateAndPrestador(date, userId) {
 (async () => {
     const weekDays = getWeekDays(currentDate);
     await renderWeekDays(weekDays);
-})();
-
-
-
-// --- Navegação ---
-(function() {
-    let userId = null;
-    if (typeof getToken === 'function') {
-        const token = getToken();
-        if (token) {
-            try {
-                const payload = JSON.parse(atob(token.split('.')[1]));
-                if (payload && payload.id) userId = payload.id;
-            } catch (e) {}
-        }
-    }
-    if (userId) {
-        document.getElementById("profile-img").src = "http://localhost:8080/usuarios/" + userId + "/fotoPerfil";
-    }
 })();

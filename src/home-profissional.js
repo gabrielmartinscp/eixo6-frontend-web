@@ -148,11 +148,13 @@ function renderWeekDays() {
     }
 }
 
+
 // --- Funções para Edição Programada ---
 function createTimeSlotElement(dayKey, startTime = '', isSpecific = false, horarioId = null) {
     const slotDiv = document.createElement('div');
     slotDiv.className = 'time-slot';
     if (horarioId) slotDiv.dataset.horarioId = horarioId;
+    slotDiv.dataset.currentValue = startTime;
 
     const startInput = document.createElement('input');
     startInput.type = 'time';
@@ -195,7 +197,7 @@ function createTimeSlotElement(dayKey, startTime = '', isSpecific = false, horar
 
         // Habilita/desabilita o botão conforme alteração
         startInput.addEventListener('input', () => {
-            if (startInput.value !== startTime) {
+            if (startInput.value !== slotDiv.dataset.currentValue) {
                 saveButton.disabled = false;
                 saveButton.classList.remove('disabled-save');
             } else {
@@ -215,7 +217,7 @@ function createTimeSlotElement(dayKey, startTime = '', isSpecific = false, horar
                 });
                 alert("Horário atualizado!");
                 // Após salvar, atualiza o valor original e desabilita o botão novamente
-                startTime = startInput.value;
+                slotDiv.dataset.currentValue = startInput.value;
                 saveButton.disabled = true;
                 saveButton.classList.add('disabled-save');
             } catch (e) {
@@ -408,6 +410,7 @@ saveSpecificDayButton.addEventListener('click', async () => {
                     horarioInicial: startInput.value,
                     token
                 });
+                slot.dataset.currentValue = startInput.value;
             } catch (e) {
                 erro = true;
             }
@@ -495,8 +498,26 @@ nextMonthButtonSpecific.addEventListener('click', () => {
     document.getElementById('edit-specific').classList.add('hidden-section');
 })();
 
-// --- Navegação ---
-(function () {
+
+
+async function recuperarDadosPerfil(id) {
+
+
+    const url = apiConfig.baseUrl + `/usuarios/${id}`;
+    const headers = { "Content-Type": "application/json" };
+
+    const response = await fetch(url, { method: "GET", headers });
+    if (response.error) {
+        console.error("Erro ao recuperar dados do usuário:", response.error);
+        return;
+    }
+    const dadosUsuarioPerfil = await response.json();
+
+    return dadosUsuarioPerfil;
+
+}
+
+(async function () {
     let userId = null;
     if (typeof getToken === 'function') {
         const token = getToken();
@@ -508,6 +529,17 @@ nextMonthButtonSpecific.addEventListener('click', () => {
         }
     }
     if (userId) {
-        document.getElementById("profile-img").src = "http://localhost:8080/usuarios/" + userId + "/fotoPerfil";
+
+        let fotoPerfil = "http://localhost:8080/usuarios/" + userId + "/fotoPerfil"; // URL da foto de perfil
+
+        document.getElementById("profile-img").src = fotoPerfil;
+        document.getElementById("profile-img-big").src = fotoPerfil;
+        const dadosUsuarioLogado = await recuperarDadosPerfil(userId);
+        document.getElementById("profile-name").textContent = dadosUsuarioLogado.nomeExibicao;
+        console.log(dadosUsuarioLogado);
     }
 })();
+
+
+document.getElementById("edit-profile-card").onclick = function() { window.location.href = "atualizar-perfil.html"; };
+

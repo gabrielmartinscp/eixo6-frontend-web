@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('profileForm');
     const usernameInput = document.getElementById('username');
     const fotoInput = document.getElementById('fotoPerfil');
+    //const bioInput = document.getElementById('bio');
     const messageDiv = document.getElementById('message');
 
     form.addEventListener('submit', async (event) => {
@@ -21,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 try {
                     const payload = JSON.parse(atob(token.split('.')[1]));
                     if (payload && payload.id) userId = payload.id;
-                } catch (e) {}
+                } catch (e) { }
             }
         }
         if (!userId) {
@@ -62,14 +63,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 const result = await response.json();
                 alert('Perfil atualizado com sucesso!');
                 messageDiv.textContent = "Perfil atualizado com sucesso!";
-                window.location = "template-profissional.html"; // Recarrega a página para refletir as mudanças
+                window.location = "home-profissional.html"; // Recarrega a página para refletir as mudanças
                 //console.log(result);
             } else {
                 let errorMsg = "Erro ao atualizar perfil.";
                 try {
                     const error = await response.json();
                     if (error && error.message) errorMsg = error.message;
-                } catch {}
+                } catch { }
                 alert(errorMsg);
                 messageDiv.textContent = errorMsg;
             }
@@ -82,32 +83,57 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 //----------------------------------------
-        //----------------------------------------
-        //----------------------------------------
-        // Recupera o id do usuário autenticado a partir do token JWT
-        let userId = null;
-        if (typeof getToken === 'function') {
-            const token = getToken();
-            if (token) {
-                try {
-                    const payload = JSON.parse(atob(token.split('.')[1]));
-                    if (payload && payload.id) userId = payload.id;
-                } catch (e) { }
-            }
-        }
-        fotoPerfil = "http://localhost:8080/usuarios/" + userId + "/fotoPerfil"; // URL da foto de perfil
-        document.getElementById("profileImage").src = fotoPerfil;
+//----------------------------------------
+//----------------------------------------
+// Recupera o id do usuário autenticado a partir do token JWT
+let userId = null;
+if (typeof getToken === 'function') {
+    const token = getToken();
+    if (token) {
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            if (payload && payload.id) userId = payload.id;
+        } catch (e) { }
+    }
+}
+fotoPerfil = "http://localhost:8080/usuarios/" + userId + "/fotoPerfil"; // URL da foto de perfil
+document.getElementById("profileImage").src = fotoPerfil;
 
-        //----------------------------------------
-        //----------------------------------------
-        //----------------------------------------
-        // Preview da imagem de perfil
-        document.getElementById('fotoPerfil').addEventListener('change', function (e) {
-            if (e.target.files && e.target.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function (ev) {
-                    document.getElementById('profileImage').src = ev.target.result;
-                };
-                reader.readAsDataURL(e.target.files[0]);
-            }
-        });
+//----------------------------------------
+//----------------------------------------
+//----------------------------------------
+// Preview da imagem de perfil
+document.getElementById('fotoPerfil').addEventListener('change', function (e) {
+    if (e.target.files && e.target.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function (ev) {
+            document.getElementById('profileImage').src = ev.target.result;
+        };
+        reader.readAsDataURL(e.target.files[0]);
+    }
+});
+
+
+async function recuperarDadosPerfil(id) {
+
+
+    const url = apiConfig.baseUrl + `/usuarios/${id}`;
+    const headers = { "Content-Type": "application/json" };
+
+    const response = await fetch(url, { method: "GET", headers });
+    if (response.error) {
+        console.error("Erro ao recuperar dados do usuário:", response.error);
+        return;
+    }
+    const dadosUsuarioPerfil = await response.json();
+
+    return dadosUsuarioPerfil;
+
+}
+
+let dadosPerfil = recuperarDadosPerfil(userId);
+dadosPerfil.then((dados) => {
+    if (dados) {
+        document.getElementById('username').placeholder = dados.nomeExibicao;
+    }
+});

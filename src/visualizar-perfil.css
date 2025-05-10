@@ -271,3 +271,7 @@ body {
     border-bottom-right-radius: 0.75rem;
     margin-top: 0;
 }
+
+#bio-usuario-perfil {
+    visibility: hidden;
+}
