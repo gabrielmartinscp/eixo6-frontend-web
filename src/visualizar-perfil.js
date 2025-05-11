@@ -18,7 +18,7 @@ if (typeof getToken === 'function') {
         } catch (e) {}
     }
 }
-const fotoPerfil = "http://localhost:8080/usuarios/" + userId + "/fotoPerfil"; // URL da foto de perfil
+const fotoPerfil = `${apiConfig.baseUrl}/usuarios/${userId}/fotoPerfil`; // URL da foto de perfil
 document.getElementById("profile-img").src = fotoPerfil;
 
 //-------------- carregar dados do perfil solicitado na query
@@ -44,7 +44,7 @@ async function recuperarDadosPerfil(id, elementoNome, elementoBio) {
     document.title = dadosUsuarioPerfil.nomeExibicao + " - EasyBook" || "EasyBook";
 
     
-    const fotoUsuarioPerfil = "http://localhost:8080/usuarios/" + id + "/fotoPerfil";
+    const fotoUsuarioPerfil = `${apiConfig.baseUrl}/usuarios/${id}/fotoPerfil`;
     const imgElement = document.getElementById("profile-img-queried-user");
 
 fetch(fotoUsuarioPerfil)

@@ -18,7 +18,7 @@ if (typeof getToken === 'function') {
         } catch (e) {}
     }
 }
-fotoPerfil = "http://localhost:8080/usuarios/" + userId + "/fotoPerfil"; // URL da foto de perfil
+fotoPerfil = `${apiConfig.baseUrl}/usuarios/${userId}/fotoPerfil`; // URL da foto de perfil
 document.getElementById("profile-img").src = fotoPerfil;
 
 //----------------------------------------
@@ -28,7 +28,7 @@ document.getElementById("profile-img").src = fotoPerfil;
 async function recuperarDadosPrestador(id) {
 
 
-    const url = apiConfig.baseUrl + `/usuarios/${id}`;
+    const url = `${apiConfig.baseUrl}/usuarios/${id}`;
     const headers = { "Content-Type": "application/json" };
 
     const response = await fetch(url, { method: "GET", headers });
@@ -43,7 +43,7 @@ async function recuperarDadosPrestador(id) {
 }
 
 async function getHorariosFuturos() {
-    const url = apiConfig.baseUrl + `/horarios/proximos/cliente/${userId}`;
+    const url = `${apiConfig.baseUrl}/horarios/proximos/cliente/${userId}`;
     const token = getToken();
     const headers = { "Content-Type": "application/json" };
     if (token) headers["Authorization"] = `Bearer ${token}`;

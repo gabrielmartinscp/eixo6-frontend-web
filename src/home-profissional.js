@@ -562,7 +562,7 @@ nextMonthButtonSpecific.addEventListener('click', () => {
 async function recuperarDadosPerfil(id) {
 
 
-    const url = apiConfig.baseUrl + `/usuarios/${id}`;
+    const url = `${apiConfig.baseUrl}/usuarios/${id}`;
     const headers = { "Content-Type": "application/json" };
 
     const response = await fetch(url, { method: "GET", headers });
@@ -589,7 +589,7 @@ async function recuperarDadosPerfil(id) {
     }
     if (userId) {
 
-        let fotoPerfil = "http://localhost:8080/usuarios/" + userId + "/fotoPerfil"; // URL da foto de perfil
+        let fotoPerfil = `${apiConfig.baseUrl}/usuarios/${userId}/fotoPerfil`; // URL da foto de perfil
 
         document.getElementById("profile-img").src = fotoPerfil;
         document.getElementById("profile-img-big").src = fotoPerfil;

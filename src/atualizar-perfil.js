@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const response = await fetch('http://localhost:8080/usuarios', {
+            const response = await fetch(`${apiConfig.baseUrl}/usuarios`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': token ? `Bearer ${token}` : undefined
@@ -96,7 +96,7 @@ if (typeof getToken === 'function') {
         } catch (e) { }
     }
 }
-fotoPerfil = "http://localhost:8080/usuarios/" + userId + "/fotoPerfil"; // URL da foto de perfil
+fotoPerfil = `${apiConfig.baseUrl}/usuarios/${userId}/fotoPerfil`; // URL da foto de perfil
 document.getElementById("profileImage").src = fotoPerfil;
 
 //----------------------------------------

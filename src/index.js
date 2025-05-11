@@ -16,7 +16,7 @@ function showScreen(screenId) {
     loginError.style.display = 'none';
 
     try {
-      const response = await fetch('http://localhost:8080/login', {
+      const response = await fetch(`${apiConfig.baseUrl}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ usuario, senha })
@@ -49,19 +49,22 @@ function showScreen(screenId) {
     const cadastroError = document.getElementById('cadastro-error');
     cadastroError.style.display = 'none';
 
+    console.log(senha);
+    console.log(confirmar);
     if (senha !== confirmar) {
       cadastroError.style.display = 'block';
       cadastroError.textContent = "As senhas não coincidem.";
       return;
     }
     try {
-      const response = await fetch('http://localhost:8080/usuarios/cadastro', {
+      const response = await fetch(`${apiConfig.baseUrl}/usuarios/cadastro`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nomeExibicao : nome, tipo : "cliente", usuario, senha })
       });
 
       if (!response.ok) {
+        console.log("Erro no cadastro[1]:");
         cadastroError.style.display = 'block';
         return;
       }
@@ -71,9 +74,11 @@ function showScreen(screenId) {
         setToken(data.token); // Função definida em auth.js
         window.location.href = "home-profissional.html";
       } else {
+        console.log("Erro no cadastro[2]:");
         cadastroError.style.display = 'block';
       }
     } catch (err) {
+        console.log(err);
       cadastroError.style.display = 'block';
     }
   });

@@ -1,14 +1,3 @@
-// Importa configuração da API
-// Supondo que api-config.js exporta um objeto apiConfig
-// Exemplo de api-config.js:
-// export const apiConfig = {
-//   baseUrl: "http://localhost:8080",
-//   endpoints: {
-//     horariosPrestador: "/horarios/prestador/{id}",
-//     // outros endpoints...
-//   }
-// };
-
 function getApiUrl(requestKey, params = {}) {
     // Busca o request na estrutura correta
     let request = apiConfig.requests[requestKey];
