@@ -23,9 +23,11 @@
         <input type="text" id="cadastroUsuario" autocomplete="new-username" placeholder="Digite seu nome de usuário" required>
         <input type="text" id="cadastroNome" autocomplete="off" placeholder="Digite seu nome completo" required>
         <input type="password" id="cadastroSenha" autocomplete="new-password" placeholder="Digite sua senha" required>
-        <input type="password" autocomplete="off" placeholder="Confirme sua senha" required>
+        <input type="password" id="confirmarSenha" autocomplete="off" placeholder="Confirme sua senha" required>
         <button type="submit">Cadastrar-se</button>
       </form>
+      
+      <p id="cadastro-error" style="color: var(--danger, red); display: none; margin-top: 10px;">Falha no cadastro. Tente novamente mais tarde.</p>
       <p class="link">Já possui conta? <a href="#" onclick="showScreen('login')">Acesse aqui</a></p>
     </div>
     <!-- Login -->
@@ -37,7 +39,7 @@
         <button type="submit">Fazer Login</button>
       </form>
       <p class="link">Não tem uma conta? <a href="#" onclick="showScreen('cadastro')">Cadastre-se!</a></p>
-      <p id="error" style="color: var(--danger, red); display: none; margin-top: 10px;">Usuário ou senha inválidos.</p>
+      <p id="login-error" style="color: var(--danger, red); display: none; margin-top: 10px;">Usuário ou senha inválidos.</p>
     </div>
   </div>
   <!-- Transição de Tela e Login -->

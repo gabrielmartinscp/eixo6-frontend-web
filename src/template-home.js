@@ -74,7 +74,8 @@ async function renderizarHorariosFuturos() {
     // Adiciona os horários futuros ao container
     horariosFuturos.content.forEach(horario => {
         const prestador = horario.prestador;
-        const data = new Date(horario.data);
+        const [a, m, d] = horario.data.split('-');
+        const data = new Date(a, m - 1, d);
         const dia = data.getDate();
         const mes = data.toLocaleString('default', { month: 'long' });
         const ano = data.getFullYear();

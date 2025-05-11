@@ -134,6 +134,6 @@ async function recuperarDadosPerfil(id) {
 let dadosPerfil = recuperarDadosPerfil(userId);
 dadosPerfil.then((dados) => {
     if (dados) {
-        document.getElementById('username').placeholder = dados.nomeExibicao;
+        document.getElementById('username').value = dados.nomeExibicao;
     }
 });

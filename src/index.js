@@ -12,7 +12,7 @@ function showScreen(screenId) {
     e.preventDefault();
     const usuario = document.getElementById('loginUsuario').value;
     const senha = document.getElementById('loginSenha').value;
-    const loginError = document.getElementById('error');
+    const loginError = document.getElementById('login-error');
     loginError.style.display = 'none';
 
     try {
@@ -44,10 +44,16 @@ function showScreen(screenId) {
     e.preventDefault();
     const usuario = document.getElementById('cadastroUsuario').value;
     const senha = document.getElementById('cadastroSenha').value;
+    const confirmar = document.getElementById('confirmarSenha').value;
     const nome = document.getElementById('cadastroNome').value;
-    const cadastroError = document.getElementById('error');
+    const cadastroError = document.getElementById('cadastro-error');
     cadastroError.style.display = 'none';
 
+    if (senha !== confirmar) {
+      cadastroError.style.display = 'block';
+      cadastroError.textContent = "As senhas não coincidem.";
+      return;
+    }
     try {
       const response = await fetch('http://localhost:8080/usuarios/cadastro', {
         method: 'POST',
