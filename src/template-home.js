@@ -2,7 +2,7 @@ const calendarDates = document.getElementById("calendar-dates");
 const prevWeekButton = document.getElementById("prev-week");
 const nextWeekButton = document.getElementById("next-week");
 const currentMonthElement = document.getElementById("current-month");
-const availableTimesContainer = document.getElementById("available-times");
+const appointmentsContainer = document.getElementById("appointments");
 
 //----------------------------------------
 //----------------------------------------
@@ -24,210 +24,82 @@ document.getElementById("profile-img").src = fotoPerfil;
 //----------------------------------------
 //----------------------------------------
 //----------------------------------------
-let currentDate = new Date(); // Data atual
-let timesByDate = {}; // Registro de horários por data
 
-// Abreviações dos dias da semana
-const weekDayAbbreviations = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
-const monthNames = [
-    "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
-    "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
-];
+async function recuperarDadosPrestador(id) {
 
-// Função para obter os dias da semana com base em uma data
-function getWeekDays(date) {
-    const weekDays = [];
-    const startOfWeek = new Date(date);
-    startOfWeek.setDate(date.getDate() - ((date.getDay() + 6) % 7)); // Segunda-feira
 
-    for (let i = 0; i < 7; i++) {
-        const day = new Date(startOfWeek);
-        day.setDate(startOfWeek.getDate() + i);
-        weekDays.push(day);
-    }
+    const url = apiConfig.baseUrl + `/usuarios/${id}`;
+    const headers = { "Content-Type": "application/json" };
 
-    return weekDays;
-}
-
-// Função para renderizar os dias da semana no calendário
-async function renderWeekDays(weekDays) {
-    calendarDates.innerHTML = ""; // Limpar os dias anteriores
-
-    for (const day of weekDays) {
-        const dayContainer = document.createElement("div");
-        dayContainer.classList.add("day");
-
-        // Adiciona a legenda do dia da semana
-        const dayLabel = document.createElement("span");
-        dayLabel.textContent = weekDayAbbreviations[(day.getDay() + 6) % 7]; // Ajusta para começar na segunda-feira
-        dayContainer.appendChild(dayLabel);
-
-        // Adiciona o número do dia
-        const dayNumber = document.createElement("div");
-        dayNumber.textContent = day.getDate();
-        dayNumber.dataset.date = day.toLocaleDateString("en-CA"); // Formato AAAA-MM-DD
-        dayContainer.appendChild(dayNumber);
-
-        // Adiciona a classe "active" ao dia atual
-        if (
-            currentDate.toDateString() === day.toDateString() &&
-            !document.querySelector(".day.active")
-        ) {
-            dayContainer.classList.add("active");
-            const selectedDate = day.toLocaleDateString("en-CA"); // Formato AAAA-MM-DD
-            console.log("Data ativa ao navegar entre semanas:", selectedDate);
-            await updateTimesForDate(selectedDate); // Atualiza os horários
-        }
-
-        // Evento de clique para tornar o dia ativo
-        dayContainer.addEventListener("click", async () => {
-            document.querySelectorAll(".day").forEach((d) => d.classList.remove("active"));
-            dayContainer.classList.add("active");
-
-            const selectedDate = day.toLocaleDateString("en-CA"); // Formato AAAA-MM-DD
-            console.log("Data selecionada:", selectedDate);
-
-            await updateTimesForDate(selectedDate); // Atualiza os horários
-            updateCurrentMonth(weekDays); // Atualiza o mês com base no dia selecionado
-        });
-
-        calendarDates.appendChild(dayContainer);
-    }
-
-    // Atualiza o mês exibido inicialmente
-    updateCurrentMonth(weekDays);
-}
-
-// Função para atualizar os horários para uma data específica
-async function updateTimesForDate(date) {
-    console.log("Data recebida em updateTimesForDate:", date);
-
-    if (!timesByDate[date]) {
-        const newTimes = await getTimesByDate(date); // Busca os horários da API
-        timesByDate = { ...timesByDate, ...newTimes }; // Mescla os novos horários com os existentes
-    }
-
-    console.log("timesByDate após atualização:", timesByDate);
-    renderAvailableTimes(date);
-}
-
-// Função para renderizar os horários disponíveis
-function renderAvailableTimes(date) {
-    const availableTimesContainer = document.getElementById("available-times");
-    if (!availableTimesContainer) {
-        console.error("Elemento com ID 'available-times' não encontrado.");
+    const response = await fetch(url, { method: "GET", headers });
+    if (response.error) {
+        console.error("Erro ao recuperar dados do prestador:", response.error);
         return;
     }
+    const dadosPrestador = await response.json();
 
-    console.log("Renderizando horários para a data:", date);
-    console.log("Horários disponíveis em renderAvailableTimes:", timesByDate[date]);
+    return dadosPrestador;
 
-    availableTimesContainer.innerHTML = ""; // Limpa os horários anteriores
-
-    if (timesByDate[date] && timesByDate[date].length > 0) {
-        timesByDate[date].forEach((time) => {
-            const timeButton = document.createElement("button");
-            timeButton.textContent = time;
-            timeButton.classList.add("time-button");
-            availableTimesContainer.appendChild(timeButton);
-        });
-    } else {
-        availableTimesContainer.textContent = "Nenhum horário disponível.";
-    }
 }
 
-// Função para atualizar o mês exibido com base no dia selecionado ou na predominância
-function updateCurrentMonth(weekDays) {
-    const selectedDay = document.querySelector(".day.active");
-    console.log(selectedDay);
+async function getHorariosFuturos() {
+    const url = apiConfig.baseUrl + `/horarios/proximos/cliente/${userId}`;
+    const token = getToken();
+    const headers = { "Content-Type": "application/json" };
+    if (token) headers["Authorization"] = `Bearer ${token}`;
 
-    if (selectedDay) {
-        // Se houver um dia selecionado, usa o mês desse dia
-        const selectedDate = new Date(selectedDay.querySelector("div").dataset.date); // Usa o formato AAAA-MM-DD
-        console.log("selectedDate: "+selectedDate);
-        //console.log(selectedDate);
-        let recentlySelectedDay = new Date(selectedDate);
-        recentlySelectedDay.setDate(selectedDate.getDate()); // Adiciona um dia para o próximo mês
-        //console.log(recentlySelectedDay);
-        let newMonth = selectedDate.getMonth();
-        currentMonthElement.textContent = monthNames[newMonth];
-    } else {
-        // Caso contrário, usa a regra de predominância
-        const monthCounts = {};
-
-        weekDays.forEach((day) => {
-            const month = day.getMonth();
-            monthCounts[month] = (monthCounts[month] || 0) + 1;
-        });
-
-        const predominantMonth = Object.keys(monthCounts).reduce((a, b) =>
-            monthCounts[a] > monthCounts[b] ? a : b
-        );
-
-        currentMonthElement.textContent = monthNames[predominantMonth];
+    const response = await fetch(url, { method: "GET", headers });
+    if (response.error) {
+        console.error("Erro ao recuperar horários futuros:", response.error);
+        return;
     }
+    const horariosFuturos = await response.json();
+
+    for(horario in horariosFuturos.content) {
+        const prestador = await recuperarDadosPrestador(horariosFuturos.content[horario].idPrestador);
+        horariosFuturos.content[horario].prestador = prestador;
+    }
+
+    //console.log("horáriosFuturos", horariosFuturos.content);
+    return horariosFuturos;
 }
 
-// Função para mudar para a semana anterior
-prevWeekButton.addEventListener("click", async () => {
-    currentDate.setDate(currentDate.getDate() - 7);
-    const weekDays = getWeekDays(currentDate);
-    await renderWeekDays(weekDays);
-});
+async function renderizarHorariosFuturos() {
+    const horariosFuturos = await getHorariosFuturos();
+    if (!horariosFuturos) return;
 
-// Função para mudar para a semana seguinte
-nextWeekButton.addEventListener("click", async () => {
-    currentDate.setDate(currentDate.getDate() + 7);
-    const weekDays = getWeekDays(currentDate);
-    await renderWeekDays(weekDays);
-});
+    // Limpa o conteúdo atual
+    appointmentsContainer.innerHTML = "";
 
-// Função para buscar horários disponíveis por data
-async function getTimesByDate(date) {
-    const times = await fetchAvailableTimes(date);
-    const timesByDate = {};
+    // Adiciona os horários futuros ao container
+    horariosFuturos.content.forEach(horario => {
+        const prestador = horario.prestador;
+        const data = new Date(horario.data);
+        const dia = data.getDate();
+        const mes = data.toLocaleString('default', { month: 'long' });
+        const ano = data.getFullYear();
+        const horarioInicial = horario.horarioInicial.split(":").slice(0, 2).join(":");
 
-    if (times.error === "connection_error") {
-        return { error: "connection_error" }; // Propaga o erro de conexão
-    }
-
-    if (times.length === 0) {
-        return { [date]: [] }; // Retorna um registro vazio para a data
-    }
-
-    // Organiza os horários por data
-    times.forEach(({ date, time }) => {
-        if (!timesByDate[date]) {
-            timesByDate[date] = [];
-        }
-        timesByDate[date].push(time);
+        const appointmentDiv = document.createElement("div");
+        appointmentDiv.className = "appointment";
+        appointmentDiv.innerHTML = `
+            <h3>${prestador.nomeExibicao}</h3>
+            <span>${dia} ${mes} ${ano}</span>
+            <span>${horarioInicial}</span>
+            <button class="cancel-button" data-id="${horario.id}">Cancelar</button>
+        `;
+        const cancelButton = appointmentDiv.querySelector(".cancel-button");
+        cancelButton.addEventListener("click", async (e) => {
+            e.preventDefault();
+            const idHorario = e.target.dataset.id;
+            const confirmacao = confirm(`Deseja mesmo cancelar o horário de ${dia} de ${mes} às ${horarioInicial} com ${prestador.nomeExibicao}?`);
+            if (!confirmacao) return;
+            await cancelarHorario({ idHorario, token: getToken() });
+            alert("Horário cancelado com sucesso!");
+            await renderizarHorariosFuturos();
+        });
+        appointmentsContainer.appendChild(appointmentDiv);
     });
-
-    console.log("Horários organizados por data em getTimesByDate:", timesByDate);
-    return timesByDate;
 }
 
-// Inicializa o calendário com a semana atual
-(async () => {
-    const weekDays = getWeekDays(currentDate);
-    await renderWeekDays(weekDays);
-})();
-
-
-
-// --- Navegação ---
-(function() {
-    let userId = null;
-    if (typeof getToken === 'function') {
-        const token = getToken();
-        if (token) {
-            try {
-                const payload = JSON.parse(atob(token.split('.')[1]));
-                if (payload && payload.id) userId = payload.id;
-            } catch (e) {}
-        }
-    }
-    if (userId) {
-        document.getElementById("profile-img").src = "http://localhost:8080/usuarios/" + userId + "/fotoPerfil";
-    }
-})();
+renderizarHorariosFuturos();

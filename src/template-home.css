@@ -111,40 +111,6 @@ body {
     border-bottom: none;
 }
 
-.profile {
-    display: flex;
-    align-items: center;
-    padding: 24px 32px;
-    background: none;
-    color: #1F2937;
-}
-
-.profile img {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    margin-right: 24px;
-    border: 3px solid var(--main-purple);
-    background: #fff;
-}
-
-.profile-info {
-    flex: 1;
-}
-
-.profile-info h2 {
-    font-size: 1.25rem;
-    margin-bottom: 5px;
-    font-weight: 600;
-    color: #1F2937;
-}
-
-.profile-info p {
-    font-size: 1rem;
-    line-height: 1.5;
-    color: var(--gray-text);
-}
-
 .content {
     padding: 32px;
 }
@@ -156,109 +122,15 @@ body {
     font-weight: 600;
 }
 
-.calendar {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-}
-
-#current-month {
-    text-align: center;
-    font-size: 1.125rem;
-    color: var(--main-purple);
-    font-weight: bold;
-    margin-bottom: 10px;
-}
-
-.calendar-dates {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-}
-
-.calendar-dates .day {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 48px;
-    height: 48px;
-    border: 2px solid var(--main-purple);
-    border-radius: 9999px;
-    background-color: #fff;
-    color: var(--main-purple);
-    font-weight: 600;
-    cursor: pointer;
-    text-align: center;
-    font-size: 1rem;
-    transition: background 0.15s, color 0.15s, border-color 0.15s;
-}
-
-.calendar-dates .day.active,
-.calendar-dates .day.selected {
-    background-color: var(--main-purple);
-    color: #fff;
-}
-
-.calendar-dates .day span {
-    font-size: 0.75rem;
-    margin-bottom: 2px;
-}
-
-.calendar button,
-.calendar-dates button {
-    width: 48px;
-    height: 48px;
-    border: 2px solid var(--main-purple);
-    border-radius: 9999px;
-    background-color: #fff;
-    color: var(--main-purple);
-    font-weight: bold;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.25rem;
-    transition: background 0.15s, color 0.15s;
-}
-
-.calendar button:hover,
-.calendar-dates button:hover {
-    background-color: var(--main-purple);
-    color: #fff;
-}
-
-.calendar-navigation {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-}
-
-.times {
+.appointments {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
     justify-content: center;
-}
-
-.times button {
-    padding: 10px 20px;
-    border: 1px solid var(--main-purple);
+    align-items: flex-start;
+    padding: 24px 32px;
     background: none;
-    color: var(--main-purple);
-    border-radius: 0.375rem;
-    cursor: pointer;
-    font-weight: 500;
-    font-size: 1rem;
-    transition: background 0.15s, color 0.15s;
-}
-
-.times button.active,
-.times button.selected {
-    background-color: var(--main-purple);
-    color: #fff;
+    color: #1F2937;
+    gap: 24px;
 }
 
 .footer {
@@ -270,4 +142,49 @@ body {
     border-bottom-left-radius: 0.75rem;
     border-bottom-right-radius: 0.75rem;
     margin-top: 0;
+}
+
+.appointment {
+    background: #fff;
+    border: 1px solid var(--gray-border);
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    padding: 20px 24px;
+    max-width: 200px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.appointment h3 {
+    color: var(--main-purple);
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.appointment span {
+    color: var(--gray-dark);
+    font-size: 1rem;
+    margin-bottom: 2px;
+    display: block;
+}
+
+.appointment .cancel-button {
+    margin-top: 10px;
+    background: var(--danger);
+    color: #fff;
+    border: none;
+    border-radius: 0.375rem;
+    padding: 8px 18px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.appointment .cancel-button:hover {
+    background: #b91c1c;
 }

@@ -3,8 +3,10 @@ const weekDaysContainer = document.getElementById('week-days-container');
 const currentMonthYearElement = document.getElementById('current-month-year');
 const prevWeekButton = document.getElementById('prev-week');
 const nextWeekButton = document.getElementById('next-week');
-const appointmentsContainer = document.getElementById('appointments-container');
-const noAppointmentsMsg = document.getElementById('no-appointments-msg');
+const horariosDisponiveisContainer = document.getElementById('horarios-disponiveis-container');
+const horariosAgendadosContainer = document.getElementById('horarios-agendados-container');
+const MsgHorarioLivre = document.getElementById('horario-livre-msg');
+const MsgHorarioAgendado = document.getElementById('horario-agendado-msg');
 const navTabs = document.querySelectorAll('.nav-tab');
 const contentSections = document.querySelectorAll('.content-section');
 // Edição Programada
@@ -64,15 +66,17 @@ function getCurrentUserId() {
 
 // --- Funções de Renderização (Visualizar Agenda) ---
 async function renderAppointments(dateStr) {
-    appointmentsContainer.innerHTML = '';
-    noAppointmentsMsg.style.display = 'none';
+    //MsgHorarioLivre.style.display = 'none';
+    //MsgHorarioAgendado.style.display = 'none';
+    horariosDisponiveisContainer.innerHTML = '';
+    horariosAgendadosContainer.innerHTML = '';
 
     const userId = getCurrentUserId();
     const token = typeof getToken === 'function' ? getToken() : undefined;
 
-    // Nova consulta simplificada: /horarios/prestador/{id}/{data}
-    const url = `${apiConfig.baseUrl}/horarios/prestador/${userId}/${dateStr}`;
-    const headers = { "Content-Type": "application/json" };
+    // Consulta de horários disponíveis: /horarios/prestador/disponivel/{id}/{data}
+    let url = `${apiConfig.baseUrl}/horarios/prestador/disponivel/${userId}/${dateStr}`;
+    let headers = { "Content-Type": "application/json" };
     if (token) headers["Authorization"] = `Bearer ${token}`;
 
     try {
@@ -80,7 +84,6 @@ async function renderAppointments(dateStr) {
         if (!response.ok) throw new Error("Erro ao buscar horários do prestador");
         const data = await response.json();
 
-        // Espera-se que a resposta seja um array de horários ou um objeto com .content
         let appointments = [];
         if (Array.isArray(data)) {
             appointments = data.map(item => item.horarioInicial || item);
@@ -89,19 +92,75 @@ async function renderAppointments(dateStr) {
         }
 
         if (!appointments || appointments.length === 0) {
-            noAppointmentsMsg.textContent = `Nenhum horário agendado para ${dateStr.split('-').reverse().join('/')}.`;
-            noAppointmentsMsg.style.display = 'block';
+            MsgHorarioLivre.innerText = `Nenhum horário disponível para ${dateStr.split('-').reverse().join('/')}.`;
+            //MsgHorarioLivre.style.display = 'block';
         } else {
+            MsgHorarioLivre.innerText = '';
             appointments.forEach(time => {
                 const timeElement = document.createElement('div');
                 timeElement.className = 'appointment-time';
                 timeElement.textContent = time;
-                appointmentsContainer.appendChild(timeElement);
+                horariosDisponiveisContainer.appendChild(timeElement);
             });
         }
     } catch (err) {
-        noAppointmentsMsg.textContent = "Erro ao buscar horários.";
-        noAppointmentsMsg.style.display = 'block';
+        MsgHorarioLivre.textContent = "Erro ao buscar horários.";
+        MsgHorarioLivre.style.display = 'block';
+        console.error(err);
+    }
+
+    // Consulta de horários agendados: /horarios/prestador/agendado/{id}/{data}
+    url = `${apiConfig.baseUrl}/horarios/prestador/agendado/${userId}/${dateStr}`;
+    headers = { "Content-Type": "application/json" };
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+
+    try {
+        const response = await fetch(url, { method: "GET", headers });
+        if (!response.ok) throw new Error("Erro ao buscar horários do prestador");
+        const data = await response.json();
+
+        let appointments = [];
+        if (Array.isArray(data)) {
+            appointments = data;
+        } else if (data && Array.isArray(data.content)) {
+            appointments = data.content;
+        }
+
+        if (!appointments || appointments.length === 0) {
+            MsgHorarioAgendado.innerText = `Nenhum horário agendado para ${dateStr.split('-').reverse().join('/')}.`;
+            //MsgHorarioAgendado.style.display = 'block';
+        } else {
+            MsgHorarioAgendado.innerText = '';
+            appointments.forEach(item => {
+                const timeElement = document.createElement('div');
+                timeElement.className = 'appointment-time';
+                timeElement.textContent = item.horarioInicial || item;
+
+                // Botão de cancelamento
+                const cancelBtn = document.createElement('button');
+                cancelBtn.textContent = 'Cancelar';
+                cancelBtn.className = 'cancel-button';
+                cancelBtn.onclick = async () => {
+                    if (confirm(`Deseja mesmo cancelar o horário das ${item.horarioInicial} do dia ${dateStr.split('-').reverse().join('/')}?`)) {
+                        try {
+                            await cancelarHorario({ idHorario: item.id, token });
+                            renderAppointments(dateStr);
+                            alert("Horário cancelado com sucesso!");
+                        } catch (e) {
+                            alert("Erro ao cancelar horário.");
+                        }
+                    }
+                };
+                const horarioContainer = document.createElement('div');
+                horarioContainer.className = 'horario-container';
+                horarioContainer.appendChild(timeElement);
+                horarioContainer.appendChild(cancelBtn);
+                horariosAgendadosContainer.appendChild(horarioContainer);
+            });
+        }
+    } catch (err) {
+        MsgHorarioAgendado.textContent = "Erro ao buscar horários.";
+        MsgHorarioAgendado.style.display = 'block';
         console.error(err);
     }
 }
@@ -541,5 +600,5 @@ async function recuperarDadosPerfil(id) {
 })();
 
 
-document.getElementById("edit-profile-card").onclick = function() { window.location.href = "atualizar-perfil.html"; };
+document.getElementById("edit-profile-card").onclick = function () { window.location.href = "atualizar-perfil.html"; };
 

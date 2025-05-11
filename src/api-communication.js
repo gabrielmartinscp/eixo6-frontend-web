@@ -266,6 +266,20 @@ async function agendarHorario({ idHorario, idCliente, token }) {
     }
 }
 
+async function cancelarHorario({ idHorario, token }) {
+    const url = apiConfig.baseUrl + `/horarios/cancelar`;
+    const headers = { "Content-Type": "application/json" };
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+    const body = JSON.stringify({ id: Number(idHorario) });
+    try {
+        const response = await fetch(url, { method: "PUT", headers, body });
+        if (!response.ok) throw new Error("Erro ao cancelar horário");
+        return await response.json();
+    } catch (err) {
+        console.error("Erro ao agendar horário:", err);
+        throw err;
+    }
+}
 // Torna as funções acessíveis globalmente
 window.fetchAvailableTimes = fetchAvailableTimes;
 window.getTimesByDate = getTimesByDate;
@@ -277,3 +291,4 @@ window.createHorario = createHorario;
 window.deleteHorario = deleteHorario;
 window.updateHorario = updateHorario;
 window.agendarHorario = agendarHorario;
+window.cancelarHorario = cancelarHorario;
